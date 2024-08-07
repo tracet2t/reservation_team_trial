@@ -1,4 +1,4 @@
-verson: '3.8'
+version: '3.8' 
 services:
   postgres:
     image: postgres
@@ -10,7 +10,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
-  volumes:
-    pgdata:
-      driver: local
+      - postgres:/var/lib/postgresql/data
+
+volumes:
+  postgres:
+    driver: local
