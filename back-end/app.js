@@ -1,9 +1,8 @@
 const express = require('express');
 const app = express();
-const todosRouter = require('./routes/todos');
 
-const { taskSchema } = require('./validators/taskValidator');
-const validate = require('./middlewares/validate');
+// routes
+const todosRouter = require('./routes/todos');
 
 
 const PORT = 4000;
