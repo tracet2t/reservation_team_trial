@@ -63,7 +63,7 @@ app.post('/deleteTask', (req, res) => {
     });
   });
 
-
+module.exports = {app,db};
 
 const PORT = process.env.PORT||3000;
 app.listen(PORT,()=>{
