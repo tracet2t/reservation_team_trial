@@ -14,7 +14,17 @@ datasource db {
 }
 
 model Todo {
-  id        Int      @id @default(autoincrement())
-  title     String
-  completed Boolean  @default(false)
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?  // Optional
+  dueDate     DateTime? // Optional
+  priority    Priority? // Optional
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum Priority {
+  HIGH
+  MEDIUM
+  LOW
 }
