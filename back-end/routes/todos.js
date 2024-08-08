@@ -5,8 +5,8 @@ const router = express.Router();
 
 
 // zod for data schema validation ??
-const { taskSchema } = require('./validators/taskValidator');
-const validate = require('./middlewares/validate');
+const { taskSchema } = require('../validators/taskValidator.js');
+const validate = require('../middlewares/validate.js');
 
 // prisma for simplified interaction with db
 const { PrismaClient } = require('@prisma/client');

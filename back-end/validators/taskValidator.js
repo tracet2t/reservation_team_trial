@@ -1,11 +1,9 @@
 const { z } = require('zod');
 
 const taskSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+  title: z.string(),
   description: z.string().optional(),
-  dueDate: z.string().optional().refine(date => !isNaN(Date.parse(date)), {
-    message: "Invalid due date format",
-  }),
+  dueDate: z.string().optional(),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
 });
 

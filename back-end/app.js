@@ -5,11 +5,11 @@ const app = express();
 const todosRouter = require('./routes/todos');
 
 
-const PORT = 4000;
+const PORT = 5000;
 
 app.use(express.json());
 
-app.use('/api/todos', todosRouter);
+app.use('/', todosRouter);
 
 module.exports = app;
 
