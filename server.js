@@ -63,6 +63,42 @@ app.post('/deleteTask', (req, res) => {
     });
   });
 
+
+app.get('/task/:id', (req, res) => {
+    const taskId = req.params.id;
+    db.get('SELECT * FROM tasks WHERE id = ?', [taskId], (error, row) => {
+        if (error) {
+            console.error('Error fetching task:', error.message);
+            return res.status(500).send(error.message);
+        }
+        res.json(row);
+    });
+});
+
+app.post('/updateTask', (req, res) => {
+    const { id, title, description, dueDate, priority } = req.body;
+    db.run('UPDATE tasks SET title = ?, description = ?, due_date = ?, priority = ? WHERE id = ?', 
+        [title, description, dueDate, priority, id], function(error) {
+        if (error) {
+            console.error('Error updating task:', error.message);
+            return res.status(500).send(error.message);
+        }
+        fetchTasks(res);
+    });
+});
+
+app.post('/markCompleted', (req,res) =>{
+    const id = req.body;
+    db.run('UPDATE tasks SET completed = 1 WHERE id=?', [id], function(error){
+        if(error){
+            console.error('Error marking task as completed:', error.message);
+            return res.status(500).send(error.message);
+        }
+        fetchTasks(res);
+    })
+})
+
+
 module.exports = {app,db};
 
 const PORT = process.env.PORT||3000;
