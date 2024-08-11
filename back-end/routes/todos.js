@@ -8,15 +8,19 @@ const router = express.Router();
 const { taskSchema } = require('../validators/taskValidator.js');
 const validate = require('../middlewares/validate.js');
 
+const authenticate = require('../middlewares/authenticate.js');
+
 // prisma for simplified interaction with db
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-
+router.use(authenticate);
 
 router.get('/', async (req, res) => {
   try {
-    const todos = await prisma.todo.findMany();
+    const todos = await prisma.todo.findMany({
+      where: { userId: req.user.userId } 
+    });
     res.json(todos);
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve tasks' });
@@ -36,6 +40,7 @@ router.post('/', validate(taskSchema), async (req, res) => {
         priority,
         expiration: expiration ? new Date(expiration) : null,
         completed: completed || false, 
+        userId: req.user.userId
       },
     });
     res.json(todo);
@@ -52,7 +57,7 @@ router.put('/:id', validate(taskSchema), async (req, res) => {
 
   try {
     const updatedTodo = await prisma.todo.update({
-      where: { id: parseInt(id, 10) },
+      where: { id: parseInt(id, 10), userId: req.user.userId },
       data: {
         title,
         description,
@@ -76,7 +81,7 @@ router.delete('/:id', async (req, res) => {
   
   try {
     await prisma.todo.delete({
-      where: { id: parseInt(id, 10) },
+      where: { id: parseInt(id, 10),  userId: req.user.userId },
     });
     
     res.json({ message: 'Task deleted successfully' });
@@ -92,7 +97,7 @@ router.patch('/:id/toggle', async (req, res) => {
 
   try {
     const todo = await prisma.todo.findUnique({
-      where: { id: parseInt(id, 10) },
+      where: { id: parseInt(id, 10),userId: req.user.userId  },
     });
 
     if (!todo) {
@@ -124,6 +129,7 @@ router.get('/search', async (req, res) => {
   try {
     const todos = await prisma.todo.findMany({
       where: {
+        userId: req.user.userId ,
         OR: [
           {
             title: {
