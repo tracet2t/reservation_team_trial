@@ -23,7 +23,7 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', validate(taskSchema), async (req, res) => {
-  const { title, description, dueDate, priority } = req.body;
+  const { title, description, dueDate, priority, expiration } = req.body;
   try {
     const todo = await prisma.todo.create({
       data: {
@@ -31,6 +31,7 @@ router.post('/', validate(taskSchema), async (req, res) => {
         description,
         dueDate: dueDate ? new Date(dueDate) : null,
         priority,
+        expiration: expiration ? new Date(expiration) : null, 
       },
     });
     res.json(todo);
@@ -41,7 +42,7 @@ router.post('/', validate(taskSchema), async (req, res) => {
 
 router.put('/:id', validate(taskSchema), async (req, res) => {
   const { id } = req.params;
-  const { title, description, dueDate, priority } = req.body;
+  const { title, description, dueDate, priority, expiration } = req.body;
   
   try {
     const updatedTodo = await prisma.todo.update({
@@ -51,6 +52,7 @@ router.put('/:id', validate(taskSchema), async (req, res) => {
         description,
         dueDate: dueDate ? new Date(dueDate) : null,
         priority,
+        expiration: expiration ? new Date(expiration) : null, 
       },
     });
     
@@ -59,7 +61,6 @@ router.put('/:id', validate(taskSchema), async (req, res) => {
     res.status(400).json({ error: 'Failed to update task' });
   }
 });
-
 
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
@@ -74,8 +75,5 @@ router.delete('/:id', async (req, res) => {
     res.status(400).json({ error: 'Failed to delete task' });
   }
 });
-
-
-
 
 module.exports = router;

@@ -19,9 +19,11 @@ model Todo {
   description String?  // Optional
   dueDate     DateTime? // Optional
   priority    Priority? // Optional
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  expiration  DateTime? // Optional field for task expiration
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
+
 
 enum Priority {
   HIGH
