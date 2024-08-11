@@ -14,9 +14,9 @@ const authenticate = require('../middlewares/authenticate.js');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-router.use(authenticate);
+// router.use();
 
-router.get('/', async (req, res) => {
+router.get('/todos', authenticate ,async (req, res) => {
   try {
     const todos = await prisma.todo.findMany({
       where: { userId: req.user.userId } 
@@ -29,7 +29,7 @@ router.get('/', async (req, res) => {
 
 
 
-router.post('/', validate(taskSchema), async (req, res) => {
+router.post('/todos', authenticate ,validate(taskSchema), async (req, res) => {
   const { title, description, dueDate, priority, expiration, completed } = req.body;
   try {
     const todo = await prisma.todo.create({
@@ -51,7 +51,7 @@ router.post('/', validate(taskSchema), async (req, res) => {
 
 
 
-router.put('/:id', validate(taskSchema), async (req, res) => {
+router.put('/todos/:id', authenticate ,validate(taskSchema), async (req, res) => {
   const { id } = req.params;
   const { title, description, dueDate, priority, expiration, completed } = req.body;
 
@@ -76,7 +76,7 @@ router.put('/:id', validate(taskSchema), async (req, res) => {
 
 
 
-router.delete('/:id', async (req, res) => {
+router.delete('/todos/:id', authenticate , async (req, res) => {
   const { id } = req.params;
   
   try {
@@ -92,7 +92,7 @@ router.delete('/:id', async (req, res) => {
 
 
 
-router.patch('/:id/toggle', async (req, res) => {
+router.patch('/todos/:id/toggle', authenticate ,async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -119,7 +119,7 @@ router.patch('/:id/toggle', async (req, res) => {
 
 
 
-router.get('/search', async (req, res) => {
+router.get('/todos/search', authenticate ,async (req, res) => {
   const { q } = req.query;
 
   if (!q) {

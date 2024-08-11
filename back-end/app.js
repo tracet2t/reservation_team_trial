@@ -11,8 +11,8 @@ const PORT = 5000;
 
 app.use(express.json());
 
-app.use('/', todosRouter);
-app.use('/auth', authRoutes);
+app.use('/api/v1/', todosRouter);
+app.use('/api/v1/auth', authRoutes);
 
 module.exports = app;
 
