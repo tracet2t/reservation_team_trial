@@ -3,6 +3,8 @@ const app = express();
 
 // routes
 const todosRouter = require('./routes/todos');
+const authRoutes = require('./routes/auth');
+
 
 
 const PORT = 5000;
@@ -10,6 +12,7 @@ const PORT = 5000;
 app.use(express.json());
 
 app.use('/', todosRouter);
+app.use('/auth', authRoutes);
 
 module.exports = app;
 
