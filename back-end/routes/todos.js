@@ -39,6 +39,43 @@ router.post('/', validate(taskSchema), async (req, res) => {
   }
 });
 
+router.put('/:id', validate(taskSchema), async (req, res) => {
+  const { id } = req.params;
+  const { title, description, dueDate, priority } = req.body;
+  
+  try {
+    const updatedTodo = await prisma.todo.update({
+      where: { id: parseInt(id, 10) },
+      data: {
+        title,
+        description,
+        dueDate: dueDate ? new Date(dueDate) : null,
+        priority,
+      },
+    });
+    
+    res.json(updatedTodo);
+  } catch (error) {
+    res.status(400).json({ error: 'Failed to update task' });
+  }
+});
+
+
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  
+  try {
+    await prisma.todo.delete({
+      where: { id: parseInt(id, 10) },
+    });
+    
+    res.json({ message: 'Task deleted successfully' });
+  } catch (error) {
+    res.status(400).json({ error: 'Failed to delete task' });
+  }
+});
+
+
 
 
 module.exports = router;
