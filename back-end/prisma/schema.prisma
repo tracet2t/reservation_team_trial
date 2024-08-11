@@ -19,7 +19,8 @@ model Todo {
   description String?  // Optional
   dueDate     DateTime? // Optional
   priority    Priority? // Optional
-  expiration  DateTime? // Optional field for task expiration
+  expiration  DateTime? // Optional
+  completed   Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }

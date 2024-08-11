@@ -13,6 +13,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 
+
 router.get('/', async (req, res) => {
   try {
     const todos = await prisma.todo.findMany();
@@ -22,8 +23,10 @@ router.get('/', async (req, res) => {
   }
 });
 
+
+
 router.post('/', validate(taskSchema), async (req, res) => {
-  const { title, description, dueDate, priority, expiration } = req.body;
+  const { title, description, dueDate, priority, expiration, completed } = req.body;
   try {
     const todo = await prisma.todo.create({
       data: {
@@ -31,7 +34,8 @@ router.post('/', validate(taskSchema), async (req, res) => {
         description,
         dueDate: dueDate ? new Date(dueDate) : null,
         priority,
-        expiration: expiration ? new Date(expiration) : null, 
+        expiration: expiration ? new Date(expiration) : null,
+        completed: completed || false, 
       },
     });
     res.json(todo);
@@ -40,10 +44,12 @@ router.post('/', validate(taskSchema), async (req, res) => {
   }
 });
 
+
+
 router.put('/:id', validate(taskSchema), async (req, res) => {
   const { id } = req.params;
-  const { title, description, dueDate, priority, expiration } = req.body;
-  
+  const { title, description, dueDate, priority, expiration, completed } = req.body;
+
   try {
     const updatedTodo = await prisma.todo.update({
       where: { id: parseInt(id, 10) },
@@ -52,15 +58,18 @@ router.put('/:id', validate(taskSchema), async (req, res) => {
         description,
         dueDate: dueDate ? new Date(dueDate) : null,
         priority,
-        expiration: expiration ? new Date(expiration) : null, 
+        expiration: expiration ? new Date(expiration) : null,
+        completed: completed !== undefined ? completed : undefined, 
       },
     });
-    
+
     res.json(updatedTodo);
   } catch (error) {
     res.status(400).json({ error: 'Failed to update task' });
   }
 });
+
+
 
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
@@ -75,5 +84,34 @@ router.delete('/:id', async (req, res) => {
     res.status(400).json({ error: 'Failed to delete task' });
   }
 });
+
+
+
+router.patch('/:id/toggle', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const todo = await prisma.todo.findUnique({
+      where: { id: parseInt(id, 10) },
+    });
+
+    if (!todo) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+
+    const updatedTodo = await prisma.todo.update({
+      where: { id: parseInt(id, 10) },
+      data: {
+        completed: !todo.completed,
+      },
+    });
+
+    res.json(updatedTodo);
+  } catch (error) {
+    res.status(400).json({ error: 'Failed to update task' });
+  }
+});
+
+
 
 module.exports = router;
