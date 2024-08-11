@@ -114,4 +114,37 @@ router.patch('/:id/toggle', async (req, res) => {
 
 
 
+router.get('/search', async (req, res) => {
+  const { q } = req.query;
+
+  if (!q) {
+    return res.status(400).json({ error: 'Query parameter `q` is required' });
+  }
+
+  try {
+    const todos = await prisma.todo.findMany({
+      where: {
+        OR: [
+          {
+            title: {
+              contains: q,
+              mode: 'insensitive',
+            },
+          },
+          {
+            description: {
+              contains: q,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      },
+    });
+
+    res.json(todos);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to search tasks' });
+  }
+});
+
 module.exports = router;
