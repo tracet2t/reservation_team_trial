@@ -17,7 +17,7 @@ db.serialize(() => {
 
 
 beforeAll((done) => {
-    server = app.listen(0, () => done()); // Use a random available port
+    server = app.listen(0, () => done()); 
 });
 
 afterAll((done) => {
@@ -31,4 +31,5 @@ test('is task added', async () => {
        .send({ title: 'Test Task', description: 'Test Description', dueDate: '2024-08-08', priority: 'High' });
 
     expect(response.body.tasks[1].title).toBe('Test Task');
+    expect(response.body.tasks[1].priority).toBe('High');
  });
