@@ -112,7 +112,7 @@ describe ('PATCH /api/v1/todos/:id/toggle', () => {
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.statusCode).toBe(200);
-    expect(response.body.completed).toBe(true); // Assuming initial state was false
+    expect(response.body.completed).toBe(true); 
   });
 });
 
