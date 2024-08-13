@@ -3,38 +3,51 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import ToDo from './ToDo';
 
-test('renders ToDo component', () => { 
-  render(<ToDo />); // Render the ToDo component into a virtual DOM
-  expect(screen.getByText(/To-Do List/i)).toBeInTheDocument(); // Check if the text "To-Do List" is present in the document
+test('renders ToDo component', () => {
+  render(<ToDo />);
+  expect(screen.getByText(/To-Do List/i)).toBeInTheDocument();
 });
 
 test('adds a new task', () => {
-  render(<ToDo />); // Render the ToDo component
-  fireEvent.change(screen.getByPlaceholderText(/Title/i), { // Simulate user typing into the Title input field
-    target: { value: 'Test Task' },  // Set the value of the input to 'Test Task'
+  render(<ToDo />);
+  fireEvent.change(screen.getByPlaceholderText(/Title/i), {
+    target: { value: 'Test Task' },
   });
-  fireEvent.click(screen.getByText(/Add Task/i)); // Simulate a click event on the "Add Task" button
-  expect(screen.getByText('Test Task')).toBeInTheDocument(); // Check if the text 'Test Task' is present in the document
+  fireEvent.click(screen.getByText(/Add Task/i));
+  expect(screen.getByText('Test Task')).toBeInTheDocument();
 });
 
 test('adds a new task with description', () => {
-  render(<ToDo />);  // Render the ToDo component
-  fireEvent.change(screen.getByPlaceholderText(/Title/i), {  // Simulate user typing into the Title input field
-    target: { value: 'Test Task with Description' },  
+  render(<ToDo />);
+  fireEvent.change(screen.getByPlaceholderText(/Title/i), {
+    target: { value: 'Test Task with Description' },
   });
-  fireEvent.change(screen.getByPlaceholderText(/Description \(optional\)/i), { // Simulate user typing into the Description input field
-    target: { value: 'This is a description' }, // Set the value of the input to 'This is a description'
+  fireEvent.change(screen.getByPlaceholderText(/Description \(optional\)/i), {
+    target: { value: 'This is a description' },
   });
-  fireEvent.click(screen.getByText(/Add Task/i));  // Simulate a click event on the "Add Task" button
-  expect(screen.getByText('Test Task with Description')).toBeInTheDocument(); // Check if the text 'Test Task with Description' is present in the document
-  expect(screen.getByText('This is a description')).toBeInTheDocument(); // Check if the text 'This is a description' is present in the document
+  fireEvent.click(screen.getByText(/Add Task/i));
+  expect(screen.getByText('Test Task with Description')).toBeInTheDocument();
+  expect(screen.getByText('This is a description')).toBeInTheDocument();
 });
 
 test('does not add a task without a title', () => {
-  render(<ToDo />); // Render the ToDo component
-  fireEvent.change(screen.getByPlaceholderText(/Description \(optional\)/i), { // Simulate user typing into the Description input field
-    target: { value: 'This is a description' },  // Set the value of the input to 'This is a description'
+  render(<ToDo />);
+  fireEvent.change(screen.getByPlaceholderText(/Description \(optional\)/i), {
+    target: { value: 'This is a description' },
   });
-  fireEvent.click(screen.getByText(/Add Task/i));  // Simulate a click event on the "Add Task" button
+  fireEvent.click(screen.getByText(/Add Task/i));
   expect(screen.queryByText('This is a description')).not.toBeInTheDocument(); // Ensure description is not displayed without title
+});
+
+test('adds a new task with due date', () => {
+  render(<ToDo />);
+  fireEvent.change(screen.getByPlaceholderText(/Title/i), {
+    target: { value: 'Test Task with Due Date' },
+  });
+  fireEvent.change(screen.getByPlaceholderText(/Due Date \(optional\)/i), {
+    target: { value: '2024-12-31' }, // Set the due date
+  });
+  fireEvent.click(screen.getByText(/Add Task/i));
+  expect(screen.getByText('Test Task with Due Date')).toBeInTheDocument();
+  expect(screen.getByText('Due Date: 2024-12-31')).toBeInTheDocument();
 });
