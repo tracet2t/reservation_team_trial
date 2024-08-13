@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -24,19 +24,13 @@ model User {
 model Todo {
   id          Int      @id @default(autoincrement())
   title       String
-  description String?  // Optional
-  dueDate     DateTime? // Optional
-  priority    Priority? // Optional
+  description String?  
+  dueDate     DateTime? 
+  priority    String?   // Changed from Priority to String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   completed   Boolean  @default(false)
-  expiration  DateTime? // Optional
-  userId      Int      // fk to User
+  expiration  DateTime? 
+  userId      Int      
   user        User     @relation(fields: [userId], references: [id])
-}
-
-enum Priority {
-  HIGH
-  MEDIUM
-  LOW
 }

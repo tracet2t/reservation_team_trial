@@ -1,17 +1,15 @@
 version: '3.8' 
 services:
-  postgres:
-    image: postgres
+  sqlite:
+    container_name: sqlite
+    image: nouchka/sqlite3:latest
+    stdin_open: true
     restart: always
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
-    ports:
-      - 5432:5432
+    tty: true
     volumes:
-      - postgres:/var/lib/postgresql/data
-
+      - ./db/:/root/db/
+    ports:
+      - 3306:3306
 volumes:
   postgres:
     driver: local
