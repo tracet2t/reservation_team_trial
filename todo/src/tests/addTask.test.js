@@ -1,4 +1,13 @@
 const { addTask } = require('../controllers/addTaskController');
+const { sequelize } = require('../../index');
+
+beforeAll(async () => {
+    await sequelize.sync({ force: true }); // Syncing the database before tests
+});
+
+afterAll(async () => {
+    await sequelize.close();  // Close the database connection after all tests
+});
 
 describe('Task Management', () => {
     it('should add a new task with title, description, due date, and priority', () => {
