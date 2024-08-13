@@ -4,7 +4,8 @@ const ToDo = () => {
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [dueDate, setDueDate] = useState(''); // New state for due date
+  const [dueDate, setDueDate] = useState('');
+  const [priority, setPriority] = useState('Medium'); // New state for priority
   const [error, setError] = useState('');
 
   const handleAddTask = () => {
@@ -12,13 +13,15 @@ const ToDo = () => {
       const newTask = {
         title: title.trim(),
         description: description.trim(),
-        dueDate: dueDate.trim(), // Include due date in the task
+        dueDate: dueDate.trim(),
+        priority, // Include priority in the task
         completed: false,
       };
       setTasks([...tasks, newTask]);
       setTitle('');
       setDescription('');
-      setDueDate(''); // Clear the due date input after adding the task
+      setDueDate('');
+      setPriority('Medium'); // Reset priority to default after adding the task
       setError('');
     } else {
       setError('Title is required');
@@ -47,19 +50,28 @@ const ToDo = () => {
         onChange={(e) => setDueDate(e.target.value)}
         placeholder="Due Date (optional)"
       />
+      <select
+        value={priority}
+        onChange={(e) => setPriority(e.target.value)}
+      >
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
       <button
         onClick={handleAddTask}
-        disabled={!title.trim()} // Disable the button if the title is empty
+        disabled={!title.trim()}
       >
         Add Task
       </button>
-      {error && <p className="error">{error}</p>} {/* Display error message */}
+      {error && <p className="error">{error}</p>}
       <ul>
         {tasks.map((task, index) => (
           <li key={index}>
             <h2>{task.title}</h2>
             {task.description && <p>{task.description}</p>}
-            {task.dueDate && <p>Due Date: {task.dueDate}</p>} {/* Display due date if available */}
+            {task.dueDate && <p>Due Date: {task.dueDate}</p>}
+            <p>Priority: {task.priority}</p> {/* Display priority */}
           </li>
         ))}
       </ul>

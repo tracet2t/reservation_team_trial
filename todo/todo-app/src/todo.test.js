@@ -51,3 +51,24 @@ test('adds a new task with due date', () => {
   expect(screen.getByText('Test Task with Due Date')).toBeInTheDocument();
   expect(screen.getByText('Due Date: 2024-12-31')).toBeInTheDocument();
 });
+
+test('adds a new task with priority', () => {
+  render(<ToDo />);
+  fireEvent.change(screen.getByPlaceholderText(/Title/i), {
+    target: { value: 'Test Task with Priority' },
+  });
+  fireEvent.change(screen.getByPlaceholderText(/Description \(optional\)/i), {
+    target: { value: 'This task has a high priority' },
+  });
+  fireEvent.change(screen.getByPlaceholderText(/Due Date \(optional\)/i), {
+    target: { value: '2024-12-31' },
+  });
+  fireEvent.change(screen.getByRole('combobox'), {
+    target: { value: 'High' }, // Set the priority to High
+  });
+  fireEvent.click(screen.getByText(/Add Task/i));
+  expect(screen.getByText('Test Task with Priority')).toBeInTheDocument();
+  expect(screen.getByText('This task has a high priority')).toBeInTheDocument();
+  expect(screen.getByText('Due Date: 2024-12-31')).toBeInTheDocument();
+  expect(screen.getByText('Priority: High')).toBeInTheDocument(); // Check if priority is correctly displayed
+});
