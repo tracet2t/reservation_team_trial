@@ -25,4 +25,3 @@ describe('POST /tasks', () => {
     expect(response.body.message).toMatch(/title is required/i);
   });
 });
-
