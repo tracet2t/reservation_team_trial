@@ -33,6 +33,7 @@ app.post('/addTask', (req, res) => {
             console.error('Error inserting task:', error.message);
             return res.status(500).send(error.message);
         }
+        //const newTaskId = this.lastID;
         fetchTasks(res);
     });
 });
@@ -88,7 +89,7 @@ app.post('/updateTask', (req, res) => {
 });
 
 app.post('/markCompleted', (req,res) =>{
-    const id = req.body;
+    const {id} = req.body;
     db.run('UPDATE tasks SET completed = 1 WHERE id=?', [id], function(error){
         if(error){
             console.error('Error marking task as completed:', error.message);

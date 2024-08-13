@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         const description = document.getElementById('description').value;
         const dueDate = document.getElementById('due-date').value;
         const priority = document.getElementById('priority').value;
+        //const expirationDateTime = document.getElementById('expiration-date').value;
 
         fetch('/addTask', {
             method: 'POST',
@@ -29,6 +30,11 @@ document.addEventListener('DOMContentLoaded',()=>{
             body: JSON.stringify({ title, description, dueDate, priority })
           }).then(response => response.json())
             .then(data => {
+              const newTaskId = data.tasks[data.tasks.length - 1].id;
+              const expirationDateTime = prompt("Set an expiration date and time for this task (YYYY-MM-DDTHH:MM format):");
+              if (expirationDateTime) {
+                saveExpiration(newTaskId, expirationDateTime);
+              }
               renderTasks(data.tasks);
               taskForm.reset();
               confirmMessage('Task added succeessfully','success');
@@ -38,17 +44,23 @@ document.addEventListener('DOMContentLoaded',()=>{
     function renderTasks(tasks) {
       console.log('Rendering tasks:', tasks); // Log the tasks to be rendered
       taskList.innerHTML = '';
+      const now = new Date();
       tasks.forEach(task => {
+          const expirationDateTimeStr = getExpiration(task.id);
+          const expirationDateTime = expirationDateTimeStr ? new Date(expirationDateTimeStr) : null;
+          const isExpired = expirationDateTime && expirationDateTime < now;
           const taskElement = document.createElement('div');
-          taskElement.className = 'bg-white p-4 rounded shadow mb-4';
+          taskElement.className = `bg-white p-4 rounded shadow mb-4 ${isExpired ? 'bg-gray-400' : ''}`;
           taskElement.innerHTML = `
-            <h2 class="text-xl font-bold">Title : ${task.title}</h2>
-            <p class="text-sm text-gray-600 font-mono font-semibold">Description : ${task.description}</p>
-            <p class="text-sm text-gray-600 font-mono font-semibold">Due Date: ${task.dueDate}</p>
-            <p class="text-sm text-gray-600 mb-5 font-mono font-semibold">Priority : ${task.priority}</p>
+            <h2 class="text-xl font-bold mb-2">Title : ${task.title}</h2>
+            <p class="text-base text-gray-600 font-mono font-semibold">Description : ${task.description}</p>
+            <p class="text-base text-gray-600 font-mono font-semibold">Due Date: ${task.due_date}</p>
+            <p class="text-base text-gray-600 mb-5 font-mono font-semibold">Priority : ${task.priority}</p>
+            ${expirationDateTime ? `<p class="text-base text-red-500 mb-5 font-mono font-semibold">Expires On : ${expirationDateTime.toLocaleString()}</p>` : ''}
+            ${isExpired ? `<span class="bg-red-500 text-white px-2 py-1 rounded">Expired</span>` : ''}
             <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="editTask(${task.id})">Edit</button>
             <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="deleteTask(${task.id})">Delete</button>
-            ${!task.completed ? `<button class="bg-green-500 text-white px-2 py-1 rounded" onclick="markCompleted(${task.id})">Mark as Completed</button>` : ''}
+            ${task.completed ? `<span class="bg-green-500 text-white px-2 py-1 rounded">Completed</span>` : `<button class="bg-green-500 text-white px-2 py-1 rounded" onclick="markCompleted(${task.id})">Mark as Completed</button>`}
           `;
           taskList.appendChild(taskElement);
       });
@@ -87,7 +99,7 @@ document.addEventListener('DOMContentLoaded',()=>{
             document.getElementById('task-id').value = task.id;
             document.getElementById('title').value = task.title;
             document.getElementById('description').value = task.description;
-            document.getElementById('due-date').value = task.dueDate;
+            document.getElementById('due-date').value = task.due_date;
             document.getElementById('priority').value = task.priority;
 
             document.getElementById('submit-btn').textContent = 'Update Task';
@@ -99,13 +111,13 @@ document.addEventListener('DOMContentLoaded',()=>{
     function updateTask(id) {
       const title = document.getElementById('title').value;
       const description = document.getElementById('description').value;
-      const dueDate = document.getElementById('due-date').value;
+      const due_date = document.getElementById('due-date').value;
       const priority = document.getElementById('priority').value;
   
       fetch(`/updateTask`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, title, description, dueDate, priority })
+          body: JSON.stringify({ id, title, description, due_date, priority })
       })
       .then(response => response.json())
       .then(data => {
@@ -153,9 +165,21 @@ document.addEventListener('DOMContentLoaded',()=>{
         message.classList.add('hidden');
       }, 3000);
     }
+
+    function saveExpiration(taskId, expirationDateTime) {
+      if (expirationDateTime) {
+          const expirationTimes = JSON.parse(localStorage.getItem('expirationTimes')) || {};
+          expirationTimes[taskId] = expirationDateTime;
+          localStorage.setItem('expirationTimes', JSON.stringify(expirationTimes));
+      }
+    }
   
-
-
+    function getExpiration(taskId) {
+      const expirationTimes = JSON.parse(localStorage.getItem('expirationTimes')) || {};
+      return expirationTimes[taskId];
+    }
+  
+  
 
 
 });

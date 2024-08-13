@@ -30,6 +30,6 @@ test('is task added', async () => {
        .post('/addTask')
        .send({ title: 'Test Task', description: 'Test Description', dueDate: '2024-08-08', priority: 'High' });
 
-    expect(response.body.tasks[1].title).toBe('Test Task');
-    expect(response.body.tasks[1].priority).toBe('High');
+    expect(response.body.tasks[0].title).toBe('Test Task');
+    expect(response.body.tasks[0].priority).toBe('High');
  });
