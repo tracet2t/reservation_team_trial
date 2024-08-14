@@ -1,15 +1,16 @@
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image'; // Import Next.js Image component
+import Image from 'next/image'; 
 import { Button } from "@/components/ui/button"
 
 const HomePage = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="container p-8 bg-white shadow-md rounded-md text-center">
+      <div className="width-4/5 max-w-6xl container p-8 bg-white shadow-md rounded-md text-center">
+      
         {/* Logo Section */}
         <div className="flex justify-center mb-8 mt-16">
-          <Image className="" src="/a.png" alt="Logo" width={100} height={100} /> {/* Adjust the width and height as needed */}
+          <Image className="" src="/a.png" alt="Logo" width={100} height={100} /> 
         </div>
 
         <header className="mb-8">

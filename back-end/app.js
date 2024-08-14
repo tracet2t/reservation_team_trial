@@ -5,9 +5,15 @@ const app = express();
 const todosRouter = require('./routes/todos');
 const authRoutes = require('./routes/auth');
 
-
+const cors = require('cors');
 
 const PORT = 5000;
+
+app.use(cors({
+  origin: 'http://localhost:3000', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+  allowedHeaders: ['Content-Type', 'Authorization'], 
+}));
 
 app.use(express.json());
 
