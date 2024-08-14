@@ -52,23 +52,37 @@ test('adds a new task with due date', () => {
   expect(screen.getByText('Due Date: 2024-12-31')).toBeInTheDocument();
 });
 
-test('adds a new task with priority', () => {
+// Test case for editing an existing task
+test('edits an existing task', () => {
   render(<ToDo />);
+  
+  // Add a task first
   fireEvent.change(screen.getByPlaceholderText(/Title/i), {
-    target: { value: 'Test Task with Priority' },
-  });
-  fireEvent.change(screen.getByPlaceholderText(/Description \(optional\)/i), {
-    target: { value: 'This task has a high priority' },
-  });
-  fireEvent.change(screen.getByPlaceholderText(/Due Date \(optional\)/i), {
-    target: { value: '2024-12-31' },
-  });
-  fireEvent.change(screen.getByRole('combobox'), {
-    target: { value: 'High' }, // Set the priority to High
+    target: { value: 'Test Task to Edit' },
   });
   fireEvent.click(screen.getByText(/Add Task/i));
-  expect(screen.getByText('Test Task with Priority')).toBeInTheDocument();
-  expect(screen.getByText('This task has a high priority')).toBeInTheDocument();
-  expect(screen.getByText('Due Date: 2024-12-31')).toBeInTheDocument();
-  expect(screen.getByText('Priority: High')).toBeInTheDocument(); // Check if priority is correctly displayed
+  expect(screen.getByText('Test Task to Edit')).toBeInTheDocument();
+
+  // Locate the task by its title
+  const taskElement = screen.getByText('Test Task to Edit');
+  
+  // Use the task element's parent node to find the associated "Edit" button
+  const editButton = taskElement.closest('li').querySelector('button');
+  fireEvent.click(editButton);
+
+  fireEvent.change(screen.getByPlaceholderText(/Title/i), {
+    target: { value: 'Edited Test Task' },
+  });
+  fireEvent.change(screen.getByPlaceholderText(/Description \(optional\)/i), {
+    target: { value: 'Updated description' },
+  });
+  fireEvent.change(screen.getByPlaceholderText(/Due Date \(optional\)/i), {
+    target: { value: '2024-11-30' }, // Update the due date
+  });
+  fireEvent.click(screen.getByText(/Save Changes/i)); // Assuming there's a Save Changes button
+
+  // Check if the changes are saved
+  expect(screen.getByText('Edited Test Task')).toBeInTheDocument();
+  expect(screen.getByText('Updated description')).toBeInTheDocument();
+  expect(screen.getByText('Due Date: 2024-11-30')).toBeInTheDocument();
 });

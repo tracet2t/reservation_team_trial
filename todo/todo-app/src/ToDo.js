@@ -5,73 +5,82 @@ const ToDo = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
-  const [priority, setPriority] = useState('Medium'); // New state for priority
-  const [error, setError] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentTaskIndex, setCurrentTaskIndex] = useState(null);
 
   const handleAddTask = () => {
-    if (title.trim()) {
-      const newTask = {
-        title: title.trim(),
-        description: description.trim(),
-        dueDate: dueDate.trim(),
-        priority, // Include priority in the task
-        completed: false,
-      };
-      setTasks([...tasks, newTask]);
-      setTitle('');
-      setDescription('');
-      setDueDate('');
-      setPriority('Medium'); // Reset priority to default after adding the task
-      setError('');
-    } else {
-      setError('Title is required');
-    }
+    if (title.trim() === '') return; // Don't add a task without a title
+
+    const newTask = {
+      title,
+      description,
+      dueDate,
+    };
+
+    setTasks([...tasks, newTask]);
+    clearForm();
+  };
+
+  const handleEditTask = (index) => {
+    const task = tasks[index];
+    setTitle(task.title);
+    setDescription(task.description);
+    setDueDate(task.dueDate);
+    setIsEditing(true);
+    setCurrentTaskIndex(index);
+  };
+
+  const handleSaveTask = () => {
+    if (title.trim() === '') return; // Don't save a task without a title
+
+    const updatedTasks = tasks.map((task, index) =>
+      index === currentTaskIndex ? { title, description, dueDate } : task
+    );
+
+    setTasks(updatedTasks);
+    setIsEditing(false);
+    setCurrentTaskIndex(null);
+    clearForm();
+  };
+
+  const clearForm = () => {
+    setTitle('');
+    setDescription('');
+    setDueDate('');
   };
 
   return (
-    <div className="todo-app">
+    <div>
       <h1>To-Do List</h1>
       <input
         type="text"
+        placeholder="Title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Title"
-        required
       />
       <input
         type="text"
+        placeholder="Description (optional)"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        placeholder="Description (optional)"
       />
       <input
         type="date"
+        placeholder="Due Date (optional)"
         value={dueDate}
         onChange={(e) => setDueDate(e.target.value)}
-        placeholder="Due Date (optional)"
       />
-      <select
-        value={priority}
-        onChange={(e) => setPriority(e.target.value)}
-      >
-        <option value="High">High</option>
-        <option value="Medium">Medium</option>
-        <option value="Low">Low</option>
-      </select>
-      <button
-        onClick={handleAddTask}
-        disabled={!title.trim()}
-      >
-        Add Task
+      <button onClick={isEditing ? handleSaveTask : handleAddTask}>
+        {isEditing ? 'Save Changes' : 'Add Task'}
       </button>
-      {error && <p className="error">{error}</p>}
+
       <ul>
         {tasks.map((task, index) => (
           <li key={index}>
-            <h2>{task.title}</h2>
+            <h3>{task.title}</h3>
             {task.description && <p>{task.description}</p>}
             {task.dueDate && <p>Due Date: {task.dueDate}</p>}
-            <p>Priority: {task.priority}</p> {/* Display priority */}
+            <button onClick={() => handleEditTask(index)}>Edit</button>
           </li>
         ))}
       </ul>
