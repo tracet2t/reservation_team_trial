@@ -1,8 +1,33 @@
+html, body {
+  @apply h-full m-0 p-0;
+}
+body {
+  @apply flex items-center justify-center bg-gray-100;
+}
+.add-task-container {
+  @apply max-w-md mx-auto p-4 bg-white shadow-lg rounded-lg;
+}
+
+h2 {
+  @apply text-2xl font-semibold mb-4;
+}
+
 form {
-    display: flex;
-    flex-direction: column;
-  }
+  @apply flex flex-col space-y-2;
+}
   
-  input, textarea, select, button {
-    margin: 5px 0;
-  }
+lable{
+  @apply block text-sm font-medium;
+}
+
+input[type="text"], textarea, input[type="date"],select {
+  @apply w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+textarea {
+  @apply h-24 resize-none;
+}
+
+button {
+  @apply bg-green-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
