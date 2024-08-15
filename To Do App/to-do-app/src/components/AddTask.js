@@ -7,7 +7,7 @@ const AddTask = ({ onAddTask }) => {
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState('Medium');
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (!title) {
       alert('Title is required');
@@ -20,12 +20,29 @@ const AddTask = ({ onAddTask }) => {
       dueDate,
       priority,
     };
+    try {
+      const response = await fetch('/api/tasks/index.js', { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newTask),
+      });
 
-    onAddTask(newTask);
-    setTitle('');
-    setDescription('');
-    setDueDate('');
-    setPriority('Medium');
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const createdTask = await response.json();
+      console.log('Task Created:', createdTask);
+      setTitle('');
+      setDescription('');
+      setDueDate('');
+      setPriority('Medium');
+    } catch (error) {
+      console.error('Error creating task:', error);
+      alert('Failed to create task');
+    }
   };
 
   return (
