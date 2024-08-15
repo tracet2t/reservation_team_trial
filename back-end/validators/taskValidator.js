@@ -6,7 +6,7 @@ const taskSchema = z.object({
   description: z.string().optional(),
   dueDate: z.string().optional(),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
-  expiration: z.string().optional(),
+  expiration: z.null().optional(),
   completed: z.boolean().optional()
 });
 

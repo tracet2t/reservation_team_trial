@@ -129,7 +129,8 @@ router.get('/todos/search', authenticate, async (req, res) => {
       where: {
         userId: req.user.userId,
         title: {
-          contains: q
+          contains: q,
+
         },
       },
     });

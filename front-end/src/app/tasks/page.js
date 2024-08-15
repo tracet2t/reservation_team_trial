@@ -3,7 +3,33 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
-import Link from 'next/link';
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toISOString().split('T')[0]; 
+};
+
+const isDueDatePassed = (dueDate) => {
+  const today = new Date();
+  const due = new Date(dueDate);
+  return today > due;
+};
+
+const calculateRemainingTime = (dueDate) => {
+  const now = new Date();
+  const due = new Date(dueDate);
+  const timeDiff = due - now;
+
+  if (timeDiff < 0) {
+    return 'Due Date Passed';
+  }
+
+  const daysRemaining = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+  const hoursRemaining = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  console.log(daysRemaining,hoursRemaining)
+
+  return `${daysRemaining} days ${hoursRemaining} hours remaining`;
+};
 
 const getToken = () => {
   if (typeof window !== 'undefined') {
@@ -16,10 +42,10 @@ const api = axios.create({
   baseURL: 'http://localhost:5000/api/v1',
 });
 
-const fetchTasks = async () => {
+const fetchTasks = async (searchQuery = '') => {
   try {
     const token = getToken();
-    const response = await api.get('/todos', {
+    const response = await api.get(`/todos/search?q=${searchQuery}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -30,38 +56,13 @@ const fetchTasks = async () => {
   }
 };
 
-const searchTasks = async (query) => {
-  try {
-    const token = getToken();
-    const response = await api.get(`/todos/search?q=${query}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw new Error('Failed to search tasks');
-  }
-};
 
-const createTask = async (task) => {
-  try {
-    const token = getToken();
-    const response = await api.post('/todos', task, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw new Error('Failed to create task');
-  }
-};
 
-const updateTask = async (id) => {
+
+const updateTaskDetails = async (taskId, taskData) => {
   try {
     const token = getToken();
-    const response = await api.patch(`/todos/${id}/toggle`, {}, {
+    const response = await api.put(`/todos/${taskId}`, taskData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -72,31 +73,23 @@ const updateTask = async (id) => {
   }
 };
 
-const deleteTask = async (id) => {
-  try {
-    const token = getToken();
-    const response = await api.delete(`/todos/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw new Error('Failed to delete task');
-  }
-};
-
 const TasksPage = () => {
   const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('a');
+  const [newTask, setNewTask] = useState({
+    title: '',
+    description: '',
+    dueDate: '',
+    priority: '',
+  });
 
   useEffect(() => {
     const getTasks = async () => {
       try {
-        const data = await fetchTasks();
+        const data = await fetchTasks(searchQuery);
         setTasks(data);
       } catch (error) {
         console.error(error.message);
@@ -104,57 +97,75 @@ const TasksPage = () => {
     };
 
     getTasks();
-  }, []);
+  }, [searchQuery]);
 
-  const handleCreateTask = async () => {
-    if (newTask.trim()) {
-      try {
-        const createdTask = await createTask({ title: newTask });
-        setTasks([...tasks, createdTask]);
-        setNewTask('');
-      } catch (error) {
-        console.error(error.message);
-      }
+  const handleToggleTask = async (taskId) => {
+    try {
+      const token = getToken();
+      const response = await api.patch(`/todos/${taskId}/toggle`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const updatedTask = response.data;
+      setTasks(prevTasks =>
+        prevTasks.map(task => (task.id === taskId ? updatedTask : task))
+      );
+    } catch (error) {
+      console.error('Failed to toggle task:', error.message);
     }
   };
 
-  const handleToggleTask = async (id) => {
+  const handleDeleteTask = async (taskId) => {
     try {
-      const updatedTask = await updateTask(id);
-      setTasks(tasks.map(task => (task.id === id ? updatedTask : task)));
+      const token = getToken();
+      await api.delete(`/todos/${taskId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setTasks(tasks.filter(task => task.id !== taskId));
+    } catch (error) {
+      console.error('Failed to delete task:', error.message);
+    }
+  };
+
+  const handleAddTask = async () => {
+    try {
+      const newTaskData = await api.post('/todos', newTask, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
+      setTasks([...tasks, newTaskData.data]);
+      setNewTask({ title: '', description: '', dueDate: '', priority: '' });
+      setIsAddModalOpen(false);
     } catch (error) {
       console.error(error.message);
     }
   };
 
-  const handleDeleteTask = async (id) => {
-    try {
-      await deleteTask(id);
-      setTasks(tasks.filter(task => task.id !== id));
-    } catch (error) {
-      console.error(error.message);
-    }
+  const openEditModal = (task) => {
+    setSelectedTask(task);
+    setIsEditModalOpen(true);
   };
 
-  const handleSearch = async () => {
-    if (searchQuery.trim()) {
+  const closeEditModal = () => {
+    setSelectedTask(null);
+    setIsEditModalOpen(false);
+  };
+
+  const handleUpdateTask = async () => {
+    if (selectedTask) {
       try {
-        const data = await searchTasks(searchQuery);
-        setSearchResults(data);
+        console.log(selectedTask)
+        const updatedTask = await updateTaskDetails(selectedTask.id, selectedTask);
+        setTasks(tasks.map(task => (task.id === selectedTask.id ? updatedTask : task)));
+        closeEditModal();
       } catch (error) {
         console.error(error.message);
       }
     }
-  };
-
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSearchQuery('');
-    setSearchResults([]);
   };
 
   return (
@@ -163,79 +174,153 @@ const TasksPage = () => {
 
         <header className="mb-8">
           <h1 className="text-3xl font-bold">Tasks</h1>
+          <div className="mt-4 flex justify-center">
+            <input
+              type="text"
+              placeholder="Search tasks..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="border rounded p-2 w-1/2 mr-4"
+            />
+            <Button onClick={() => setIsAddModalOpen(true)} className="text-white">
+              Add Task
+            </Button>
+          </div>
         </header>
 
-        <div className="mb-8">
-          <input
-            type="text"
-            value={newTask}
-            onChange={(e) => setNewTask(e.target.value)}
-            placeholder="Enter a new task"
-            className="border rounded p-2 mr-2"
-          />
-          <Button onClick={handleCreateTask}>Add Task</Button>
-        </div>
+<ul className="mt-8">
+  {tasks.map((task) => {
+    const text = calculateRemainingTime(task.dueDate);
+    console.log(text)
+    return (
+      <li key={task.id} className="flex justify-between items-center mb-4">
+  <div
+    className={`cursor-pointer ${task.completed ? 'line-through text-gray-500' : ''}`}
+    onClick={() => openEditModal(task)}
+  >
+    {task.title}
+  </div>
+  <div className={`text-sm p-2 rounded-full ${isDueDatePassed(task.dueDate) ? 'bg-red-200 text-red-600' : 'bg-green-200 text-green-600'}`}>
+    {isDueDatePassed(task.dueDate) ? 'Due Date Passed' : text}
+  </div>
+  <div className="flex items-center space-x-2">
+    <Button onClick={() => openEditModal(task)}>Edit</Button>
+    <Button onClick={() => handleToggleTask(task.id)} className={`${task.completed ? 'bg-green-500' : 'bg-yellow-500'} text-white`}>
+      {task.completed ? 'Completed' : 'Not Completed'}
+    </Button>
+    <Button onClick={() => handleDeleteTask(task.id)} className="bg-red-500 text-white">Delete</Button>
+  </div>
+</li>
 
-        <Button onClick={openModal}>
-          Search Tasks
-        </Button>
+    );
+  })}
+</ul>
 
-        <ul className="mt-8">
-          {tasks.map((task) => (
-            <li key={task.id} className="flex justify-between items-center mb-4">
-              <div className="flex items-center">
-                <span
-                  className={`cursor-pointer ${task.completed ? 'line-through text-gray-500' : ''}`}
-                >
-                  {task.title}
-                </span>
-              </div>
-              <div className="flex items-center">
-                <Button 
-                  onClick={() => handleToggleTask(task.id)} 
-                  className={`${task.completed ? 'bg-green-500' : 'bg-gray-500'} text-white ml-4`}
-                >
-                  {task.completed ? 'Completed' : 'Not Completed'}
-                </Button>
-                <Button 
-                  onClick={() => handleDeleteTask(task.id)} 
-                  className="bg-red-500 text-white ml-4"
-                >
-                  Delete
-                </Button>
-              </div>
-            </li>
-          ))}
-        </ul>
-
-        {isModalOpen && (
+        {/* Edit Modal */}
+        {isEditModalOpen && selectedTask && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-8 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-bold mb-4">Search Tasks</h2>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search tasks..."
-                className="border rounded p-2 w-full mb-4"
-              />
-              <Button onClick={handleSearch} className="mr-5">
-                Search
+              <h2 className="text-2xl font-bold mb-4">Edit Task</h2>
+              <div className="mb-4">
+                <label className="block text-left">Title</label>
+                <input
+                  type="text"
+                  value={selectedTask.title}
+                  onChange={(e) => setSelectedTask({ ...selectedTask, title: e.target.value })}
+                  className="border rounded p-2 w-full"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-left">Description</label>
+                <input
+                  type="text"
+                  value={selectedTask.description}
+                  onChange={(e) => setSelectedTask({ ...selectedTask, description: e.target.value })}
+                  className="border rounded p-2 w-full"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-left">Due Date</label>
+                <input
+                  type="date"
+                  value={formatDate(selectedTask.dueDate)}
+                  onChange={(e) => setSelectedTask({ ...selectedTask, dueDate: e.target.value })}
+                  className="border rounded p-2 w-full"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-left">Priority</label>
+                <select
+                  value={selectedTask.priority}
+                  onChange={(e) => setSelectedTask({ ...selectedTask, priority: e.target.value })}
+                  className="border rounded p-2 w-full"
+                >
+                  <option value="HIGH">HIGH</option>
+                  <option value="MEDIUM">MEDIUM</option>
+                  <option value="LOW">LOW</option>
+                </select>
+              </div>
+              <Button onClick={handleUpdateTask} className="bg-blue-500 text-white mr-4">
+                Update Task
               </Button>
-              <Button onClick={closeModal} className={"bg-red-500 hover:bg-red-800"}>
-                Close
+              <Button onClick={closeEditModal} className="bg-red-500 text-white">
+                Cancel
               </Button>
-              {searchResults.length > 0 ? (
-                <ul className='m-8 text-left'>
-                  {searchResults.map((task) => (
-                    <li key={task.id} className="mb-2">
-                      {task.title}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No tasks found.</p>
-              )}
+            </div>
+          </div>
+        )}
+        {/* Add Task Modal */}
+        {isAddModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-8 rounded-lg shadow-lg">
+              <h2 className="text-2xl font-bold mb-4">Add New Task</h2>
+              <div className="mb-4">
+                <label className="block text-left">Title</label>
+                <input
+                  type="text"
+                  value={newTask.title}
+                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                  className="border rounded p-2 w-full"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-left">Description</label>
+                <input
+                  type="text"
+                  value={newTask.description}
+                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                  className="border rounded p-2 w-full"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-left">Due Date</label>
+                <input
+                  type="date"
+                  value={newTask.dueDate}
+                  onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                  className="border rounded p-2 w-full"
+                />
+              </div>
+              <div className="mb-4">
+  <label className="block text-left">Priority</label>
+  <select
+    value={newTask.priority}
+    onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
+    className="border rounded p-2 w-full"
+  >
+    <option value="">Select Priority</option>
+    <option value="HIGH">HIGH</option>
+    <option value="MEDIUM">MEDIUM</option>
+    <option value="LOW">LOW</option>
+  </select>
+</div>
+
+              <Button onClick={handleAddTask} className= "text-white mr-4">
+                Add Task
+              </Button>
+              <Button onClick={() => setIsAddModalOpen(false)} className="bg-red-500 text-white">
+                Cancel
+              </Button>
             </div>
           </div>
         )}
