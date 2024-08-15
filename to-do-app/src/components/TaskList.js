@@ -9,13 +9,17 @@ const TaskList = ({ tasks, fetchTasks }) => {
 
   return (
     <ul>
-      {tasks.map((task) => (
+      {tasks.map(task => (
         <li key={task.id}>
-          <h3>{task.title}</h3>
-          <p>{task.description}</p>
-          <p>Due: {task.due_date}</p>
-          <p>Priority: {task.priority}</p>
-          <button onClick={() => handleDelete(task.id)}>Delete</button>
+          <div className="task-info">
+            <p>{task.title}</p>
+            <span>{task.description}</span>
+            <span>Due: {task.dueDate}</span>
+            <span>Priority: {task.priority}</span>
+          </div>
+          <div className="task-actions">
+            <button onClick={() => handleDelete(task.id)}>Delete</button>
+          </div>
         </li>
       ))}
     </ul>

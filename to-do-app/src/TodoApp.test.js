@@ -1,65 +1,36 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import App from './App';
-import TaskForm from './TaskForm';
-import TaskList from './TaskList';
 
-// Mock tasks data
-const mockTasks = [
-  { id: 1, title: 'Task 1', description: 'Description 1', completed: false },
-  { id: 2, title: 'Task 2', description: 'Description 2', completed: true },
-];
-
-describe('Todo App', () => {
-  // Test for rendering the App component
-  test('renders the App component without crashing', () => {
+describe('TodoApp', () => {
+  test('renders the app correctly', () => {
     render(<App />);
-    expect(screen.getByText('Todo Application')).toBeInTheDocument();
+    expect(screen.getByText('To-Do List')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Enter a new task')).toBeInTheDocument();
+    expect(screen.getByText('Add Task')).toBeInTheDocument();
   });
 
-  // Test for TaskForm component
-  test('renders the TaskForm component and submits form', () => {
-    const mockAddTask = jest.fn();
-    render(<TaskForm addTask={mockAddTask} />);
+  test('allows users to add tasks', () => {
+    render(<App />);
+    
+    const input = screen.getByPlaceholderText('Enter a new task');
+    const button = screen.getByText('Add Task');
 
-    // Simulate entering a task title
-    fireEvent.change(screen.getByPlaceholderText('Enter task title'), {
-      target: { value: 'New Task' },
-    });
+    fireEvent.change(input, { target: { value: 'Learn React' } });
+    fireEvent.click(button);
 
-    // Simulate form submission
-    fireEvent.click(screen.getByText('Add Task'));
-
-    // Ensure the addTask function was called with correct data
-    expect(mockAddTask).toHaveBeenCalledWith({
-      title: 'New Task',
-      description: '',
-      dueDate: '',
-      priority: 'Low',
-    });
+    expect(screen.getByText('Learn React')).toBeInTheDocument();
   });
 
-  // Test for TaskList component
-  test('renders the TaskList component with tasks', () => {
-    render(<TaskList tasks={mockTasks} />);
+  test('does not add empty tasks', () => {
+    render(<App />);
 
-    // Ensure tasks are displayed
-    expect(screen.getByText('Task 1')).toBeInTheDocument();
-    expect(screen.getByText('Task 2')).toBeInTheDocument();
+    const input = screen.getByPlaceholderText('Enter a new task');
+    const button = screen.getByText('Add Task');
 
-    // Ensure completed tasks are marked
-    expect(screen.getByText('Task 2')).toHaveClass('completed');
-  });
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.click(button);
 
-  // Test for marking a task as completed
-  test('marks a task as completed', () => {
-    const mockToggleTaskCompletion = jest.fn();
-    render(<TaskList tasks={mockTasks} toggleTaskCompletion={mockToggleTaskCompletion} />);
-
-    // Simulate marking the first task as completed
-    fireEvent.click(screen.getByText('Task 1'));
-
-    // Ensure toggleTaskCompletion function was called
-    expect(mockToggleTaskCompletion).toHaveBeenCalledWith(1);
+    expect(screen.queryByText('')).not.toBeInTheDocument();
   });
 });

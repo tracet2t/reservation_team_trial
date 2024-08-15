@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TaskForm from './components/TaskForm';
 import TaskList from './components/TaskList';
+import './App.css';
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
@@ -17,7 +18,7 @@ const App = () => {
 
   return (
     <div className="App">
-      <h1>To-Do List</h1>
+      <h1>Task Manager</h1>
       <TaskForm fetchTasks={fetchTasks} />
       <TaskList tasks={tasks} fetchTasks={fetchTasks} />
     </div>
