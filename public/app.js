@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       fetchTasks();
     })*/
 
-    function addTask(){
+    function addTask(){   //function for adding tasks
         const title = document.getElementById('title').value;
         const description = document.getElementById('description').value;
         const dueDate = document.getElementById('due-date').value;
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded',()=>{
             });       
     }
 
-    function renderTasks(tasks) {
+    function renderTasks(tasks) {      // function for rendering tasks
       console.log('Rendering tasks:', tasks); // Log the tasks to be rendered
       taskList.innerHTML = '';
       const now = new Date();
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
   
 
-    function fetchTasks() {
+    function fetchTasks() {     // function for viewing tasks
       fetch('/tasks')
           .then(response => response.json())
           .then(data => renderTasks(data.tasks))
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   
     fetchTasks();
 
-    function deleteTask(id) {
+    function deleteTask(id) {        // function for deleting tasks
       fetch('/deleteTask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
     window.deleteTask = deleteTask;
 
-    function editTask(id){
+    function editTask(id){         // function for editing tasks
       fetch(`/task/${id}`).then(response=>response.json())
         .then(task=>{
             document.getElementById('task-id').value = task.id;
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
     window.editTask = editTask;
 
-    function updateTask(id) {
+    function updateTask(id) {            // function for updating tasks
       const title = document.getElementById('title').value;
       const description = document.getElementById('description').value;
       const due_date = document.getElementById('due-date').value;
@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       });
     }
 
-    function markCompleted(id) {
+    function markCompleted(id) {        // function for task completion
       fetch('/markCompleted', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
     window.markCompleted = markCompleted;
 
-    function confirmMessage(messages, type='info'){
+    function confirmMessage(messages, type='info'){       // function for notification messages
       const message = document.getElementById('confirmation');
       message.innerText = messages;
 
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       }, 3000);
     }
 
-    function saveExpiration(taskId, expirationDateTime) {
+    function saveExpiration(taskId, expirationDateTime) {   // function to store expiration date and time
       if (expirationDateTime) {
           const expirationTimes = JSON.parse(localStorage.getItem('expirationTimes')) || {};
           expirationTimes[taskId] = expirationDateTime;
@@ -174,12 +174,9 @@ document.addEventListener('DOMContentLoaded',()=>{
       }
     }
   
-    function getExpiration(taskId) {
+    function getExpiration(taskId) {     // function to retrieve expiration date and time
       const expirationTimes = JSON.parse(localStorage.getItem('expirationTimes')) || {};
       return expirationTimes[taskId];
     }
-  
-  
-
 
 });

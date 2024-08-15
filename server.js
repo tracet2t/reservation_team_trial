@@ -12,7 +12,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'app.html'));
   });
 
-db.serialize( ()=>{
+db.serialize( ()=>{      // database creation
     db.run(`
         CREATE TABLE IF NOT EXISTS tasks(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,7 +25,7 @@ db.serialize( ()=>{
         `);
 });
 
-app.post('/addTask', (req, res) => {
+app.post('/addTask', (req, res) => {   // api for adding tasks
     const { title, description, dueDate, priority } = req.body;
     console.log('Adding task:', { title, description, dueDate, priority }); // Log the task data
     db.run(`INSERT INTO tasks (title, description, due_date, priority) VALUES (?, ?, ?, ?)`, [title, description, dueDate, priority], function(error) {
@@ -39,7 +39,7 @@ app.post('/addTask', (req, res) => {
 });
 
 
-app.get('/tasks',(req,res)=>{
+app.get('/tasks',(req,res)=>{     // api for viewing tasks
     fetchTasks(res);
 });
 
@@ -54,7 +54,7 @@ function fetchTasks(res) {
     });
 }
 
-app.post('/deleteTask', (req, res) => {
+app.post('/deleteTask', (req, res) => {   // api for deleting tasks
     const { id } = req.body;
     db.run(`DELETE FROM tasks WHERE id = ?`, [id], function(error) {
       if (error) {
@@ -65,7 +65,7 @@ app.post('/deleteTask', (req, res) => {
   });
 
 
-app.get('/task/:id', (req, res) => {
+app.get('/task/:id', (req, res) => {   // api for editing tasks
     const taskId = req.params.id;
     db.get('SELECT * FROM tasks WHERE id = ?', [taskId], (error, row) => {
         if (error) {
@@ -76,7 +76,7 @@ app.get('/task/:id', (req, res) => {
     });
 });
 
-app.post('/updateTask', (req, res) => {
+app.post('/updateTask', (req, res) => {      // api for updating tasks
     const { id, title, description, dueDate, priority } = req.body;
     db.run('UPDATE tasks SET title = ?, description = ?, due_date = ?, priority = ? WHERE id = ?', 
         [title, description, dueDate, priority, id], function(error) {
@@ -88,7 +88,7 @@ app.post('/updateTask', (req, res) => {
     });
 });
 
-app.post('/markCompleted', (req,res) =>{
+app.post('/markCompleted', (req,res) =>{    // api for task cpmpletion
     const {id} = req.body;
     db.run('UPDATE tasks SET completed = 1 WHERE id=?', [id], function(error){
         if(error){
