@@ -1,8 +1,4 @@
-const express = require('express');
 const { Sequelize, DataTypes } = require('sequelize');
-
-const app = express();
-const PORT = 5001;
 
 // Sequelize with SQLite
 const sequelize = new Sequelize({
@@ -10,7 +6,7 @@ const sequelize = new Sequelize({
   storage: './src/models/database.sqlite'
 });
 
-// Simple model to test the connection
+// simple model to test the connection
 const Task = sequelize.define('Task', {
   title: {
     type: DataTypes.STRING,
@@ -24,35 +20,21 @@ const Task = sequelize.define('Task', {
 
 (async () => {
   try {
-    // Test database connection
-    await sequelize.authenticate();
-    console.log('Connection to the database has been established successfully.');
-
-    // Sync models with the database (create table if not exists)
+    // Sync database and create the table
     await sequelize.sync();
-    console.log('Database synced.');
+    console.log('Database & tables created!');
 
+    // Additional test: Create a test entry
+    await Task.create({
+      title: 'Test Task',
+      description: 'This is a test task to verify database connection.'
+    });
+
+    console.log('Test entry created successfully!');
   } catch (err) {
     console.error('Unable to connect to the database:', err);
+  } finally {
+    // Close the database connection
+    await sequelize.close();
   }
 })();
-
-// Route for the root URL
-app.get('/', (req, res) => {
-  res.send('Hello World');
-});
-
-// Route to test database interaction
-app.get('/tasks', async (req, res) => {
-  try {
-    const tasks = await Task.findAll();
-    res.json(tasks);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to retrieve tasks' });
-  }
-});
-
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
