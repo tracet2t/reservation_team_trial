@@ -29,7 +29,6 @@ token = jwt.sign({ userId: user.id }, SECRET_KEY, { expiresIn: '1h' });
 });
 
 afterAll(async () => {
-// Clean up the database
 await prisma.todo.deleteMany();
 await prisma.user.deleteMany();
 });

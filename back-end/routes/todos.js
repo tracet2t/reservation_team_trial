@@ -117,9 +117,7 @@ router.patch('/todos/:id/toggle', authenticate ,async (req, res) => {
   }
 });
 
-
-
-router.get('/todos/search', authenticate ,async (req, res) => {
+router.get('/todos/search', authenticate, async (req, res) => {
   const { q } = req.query;
 
   if (!q) {
@@ -129,26 +127,17 @@ router.get('/todos/search', authenticate ,async (req, res) => {
   try {
     const todos = await prisma.todo.findMany({
       where: {
-        userId: req.user.userId ,
-        OR: [
-          {
-            title: {
-              contains: q,
-              mode: 'insensitive',
-            },
-          },
-          {
-            description: {
-              contains: q,
-              mode: 'insensitive',
-            },
-          },
-        ],
+        userId: req.user.userId,
+        title: {
+          contains: q
+        },
       },
     });
+    
 
     res.json(todos);
   } catch (error) {
+    console.error('Error searching tasks:', error);
     res.status(500).json({ error: 'Failed to search tasks' });
   }
 });

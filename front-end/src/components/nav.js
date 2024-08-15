@@ -11,9 +11,13 @@ const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = document.cookie.split('; ').find(row => row.startsWith('token='));
-    setIsLoggedIn(!!token); 
-  }, []);
+    const checkAuthStatus = () => {
+      const token = document.cookie.split('; ').find(row => row.startsWith('token='));
+      setIsLoggedIn(!!token); 
+    };
+
+    checkAuthStatus();
+  }, [router]);
 
   const handleLogout = () => {
     document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';

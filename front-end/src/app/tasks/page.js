@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
+import Link from 'next/link';
 
 const getToken = () => {
   if (typeof window !== 'undefined') {
@@ -29,6 +30,20 @@ const fetchTasks = async () => {
   }
 };
 
+const searchTasks = async (query) => {
+  try {
+    const token = getToken();
+    const response = await api.get(`/todos/search?q=${query}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to search tasks');
+  }
+};
+
 const createTask = async (task) => {
   try {
     const token = getToken();
@@ -51,7 +66,6 @@ const updateTask = async (id) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log(response)
     return response.data;
   } catch (error) {
     throw new Error('Failed to update task');
@@ -75,6 +89,9 @@ const deleteTask = async (id) => {
 const TasksPage = () => {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     const getTasks = async () => {
@@ -119,6 +136,27 @@ const TasksPage = () => {
     }
   };
 
+  const handleSearch = async () => {
+    if (searchQuery.trim()) {
+      try {
+        const data = await searchTasks(searchQuery);
+        setSearchResults(data);
+      } catch (error) {
+        console.error(error.message);
+      }
+    }
+  };
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSearchQuery('');
+    setSearchResults([]);
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="width-4/5 max-w-6xl container p-8 bg-white shadow-md rounded-md text-center">
@@ -127,7 +165,7 @@ const TasksPage = () => {
           <h1 className="text-3xl font-bold">Tasks</h1>
         </header>
 
-        <div className="m-32">
+        <div className="mb-8">
           <input
             type="text"
             value={newTask}
@@ -137,33 +175,70 @@ const TasksPage = () => {
           />
           <Button onClick={handleCreateTask}>Add Task</Button>
         </div>
-<ul className="mt-8">
-  {tasks.map((task) => (
-    <li key={task.id} className="flex justify-between items-center mb-4">
-      <div className="flex items-center">
-        <span
-          className={`cursor-pointer ${task.completed ? 'line-through text-gray-500' : ''}`}
-        >
-          {task.title}
-        </span>
-      </div>
-      <div className="flex items-center">
-        <Button 
-          onClick={() => handleToggleTask(task.id)} 
-          className={`${task.completed ? 'bg-green-500' : 'bg-gray-500'} text-white ml-4`}
-        >
-          {task.completed ? 'Completed' : 'Not Completed'}
+
+        <Button onClick={openModal}>
+          Search Tasks
         </Button>
-        <Button 
-          onClick={() => handleDeleteTask(task.id)} 
-          className="bg-red-500 text-white ml-4"
-        >
-          Delete
-        </Button>
-      </div>
-    </li>
-  ))}
-</ul>
+
+        <ul className="mt-8">
+          {tasks.map((task) => (
+            <li key={task.id} className="flex justify-between items-center mb-4">
+              <div className="flex items-center">
+                <span
+                  className={`cursor-pointer ${task.completed ? 'line-through text-gray-500' : ''}`}
+                >
+                  {task.title}
+                </span>
+              </div>
+              <div className="flex items-center">
+                <Button 
+                  onClick={() => handleToggleTask(task.id)} 
+                  className={`${task.completed ? 'bg-green-500' : 'bg-gray-500'} text-white ml-4`}
+                >
+                  {task.completed ? 'Completed' : 'Not Completed'}
+                </Button>
+                <Button 
+                  onClick={() => handleDeleteTask(task.id)} 
+                  className="bg-red-500 text-white ml-4"
+                >
+                  Delete
+                </Button>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        {isModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-8 rounded-lg shadow-lg">
+              <h2 className="text-2xl font-bold mb-4">Search Tasks</h2>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search tasks..."
+                className="border rounded p-2 w-full mb-4"
+              />
+              <Button onClick={handleSearch} className="mr-5">
+                Search
+              </Button>
+              <Button onClick={closeModal} className={"bg-red-500 hover:bg-red-800"}>
+                Close
+              </Button>
+              {searchResults.length > 0 ? (
+                <ul className='m-8 text-left'>
+                  {searchResults.map((task) => (
+                    <li key={task.id} className="mb-2">
+                      {task.title}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No tasks found.</p>
+              )}
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
