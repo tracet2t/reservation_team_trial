@@ -6,26 +6,33 @@ const TaskForm = ({ fetchTasks }) => {
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState('Medium');
+  const [message, setMessage] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await axios.post('http://localhost:5000/tasks', {
-      title,
-      description,
-      dueDate,
-      priority,
-    });
+    try {
+      await axios.post('http://localhost:5000/tasks', {
+        title,
+        description,
+        dueDate,
+        priority,
+      });
+      fetchTasks();
+      setTitle('');
+      setDescription('');
+      setDueDate('');
+      setPriority('Medium');
+      setMessage({ text: 'Task added successfully!', type: 'success' });
+    } catch (error) {
+      setMessage({ text: 'Failed to add task.', type: 'error' });
+    }
 
-    fetchTasks();
-    setTitle('');
-    setDescription('');
-    setDueDate('');
-    setPriority('Medium');
+    setTimeout(() => setMessage(null), 3000);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="task-form">
       <input
         type="text"
         placeholder="Title"
@@ -52,6 +59,7 @@ const TaskForm = ({ fetchTasks }) => {
         <option value="Low">Low</option>
       </select>
       <button type="submit">Add Task</button>
+      {message && <p className={`message ${message.type}`}>{message.text}</p>}
     </form>
   );
 };

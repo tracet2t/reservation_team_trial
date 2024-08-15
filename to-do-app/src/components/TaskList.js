@@ -3,17 +3,19 @@ import axios from 'axios';
 
 const TaskList = ({ tasks, fetchTasks }) => {
   const handleDelete = async (id) => {
-    await axios.delete(`http://localhost:5000/tasks/${id}`);
-    fetchTasks();
+    if (window.confirm("Are you sure you want to delete this task?")) {
+      await axios.delete(`http://localhost:5000/tasks/${id}`);
+      fetchTasks();
+    }
   };
 
   return (
-    <ul>
+    <ul className="task-list">
       {tasks.map(task => (
-        <li key={task.id}>
+        <li key={task.id} className={`task-item ${task.priority.toLowerCase()}`}>
           <div className="task-info">
-            <p>{task.title}</p>
-            <span>{task.description}</span>
+            <h3>{task.title}</h3>
+            <p>{task.description}</p>
             <span>Due: {task.dueDate}</span>
             <span>Priority: {task.priority}</span>
           </div>
