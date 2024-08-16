@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { addTask } from '../api/taskApi';
 import './AddTask.css';
 
-const AddTask = ({ onAddTask }) => {
+function AddTask() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
@@ -9,41 +10,12 @@ const AddTask = ({ onAddTask }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!title) {
-      alert('Title is required');
-      return;
-    }
-
-    const newTask = {
-      title,
-      description,
-      dueDate,
-      priority,
-    };
-    try {
-      const response = await fetch('/api/tasks/index.js', { 
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newTask),
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const createdTask = await response.json();
-      console.log('Task Created:', createdTask);
-      setTitle('');
-      setDescription('');
-      setDueDate('');
-      setPriority('Medium');
-    } catch (error) {
-      console.error('Error creating task:', error);
-      alert('Failed to create task');
-    }
-  };
+    await addTask({ title, description, dueDate, priority });
+    setTitle(''); 
+    setDescription('');
+    setDueDate('');
+    setPriority('Medium');
+  }
 
   return (
     <div className="add-task-container">
@@ -96,6 +68,6 @@ const AddTask = ({ onAddTask }) => {
       </form>
     </div>
   );
-};
+}
 
 export default AddTask;
