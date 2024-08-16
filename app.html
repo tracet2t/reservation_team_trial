@@ -6,57 +6,71 @@
     <title>ToDo</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+            font-family: 'Nunito', sans-serif;
+        }
+        .form-container {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-container input, .form-container textarea, .form-container select {
+            transition: border-color 0.2s ease-in-out;
+        }
+        .form-container input:focus, .form-container textarea:focus, .form-container select:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 1px #4a90e2;
+        }
+        .btn-primary {
+            background-color: #4a90e2;
+            color: #fff;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #357abd;
+            transform: scale(1.05);
+        }
+    </style>
 </head>
 <body class="bg-gray-100">
     <div id="confirmation" class="fixed top-0 right-0 m-4 p-2 bg-blue-500 text-white rounded shadow-lg hidden animate-pulse"></div>
     <div class="flex items-center justify-center min-h-screen ">
-        <div class="w-full max-w-xs mx-auto">
-            <header class="bg-blue-500 text-white p-0 mt-5 mb-5">
-            <h1 class="text-4xl font-bold text-center pb-10 pt-10">ToDo</h1>
+        <div class="w-full max-w-md mx-auto">
+            <header class="bg-blue-500 text-white p-6 mb-5 rounded-lg shadow-lg mt-5">
+                <h1 class="text-4xl font-bold text-center">ToDo</h1>
             </header>
-            <form class="bg-white shadow-lg rounded-lg px-8 pt-6 pb-8 mb-4" id="task-form">
+            <form class="bg-white shadow-lg rounded-lg px-8 pt-6 pb-8 mb-4 form-container" id="task-form">
                 <input type="hidden" id="task-id">
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2"><i class="fa fa-tasks mr-2"></i>Title</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2 flex items-center"><i class="fa fa-tasks mr-2"></i>Title</label>
                     <input type="text" id="title" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 transition duration-200 ease-in-out" required>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2"><i class="fa fa-info-circle mr-2"></i>Description</label>
-                    <textarea id="description" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 transition duration-200 ease-in-out" ></textarea>
+                    <label class="block text-gray-700 text-sm font-bold mb-2 flex items-center"><i class="fa fa-info-circle mr-2"></i>Description</label>
+                    <textarea id="description" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 transition duration-200 ease-in-out" rows="4"></textarea>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2"><i class="fa fa-clock mr-2"></i>Due Date</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2 flex items-center"><i class="fa fa-clock mr-2"></i>Due Date</label>
                     <input type="date" id="due-date" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 transition duration-200 ease-in-out">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2"><i class="fa fa-bolt mr-2"></i>Priority</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2 flex items-center"><i class="fa fa-bolt mr-2"></i>Priority</label>
                     <select id="priority" class="w-full p-2 border border-gray-300 rounded">
                         <option value="Low">Low</option>
                         <option value="Medium">Medium</option>
                         <option value="High">High</option>
-                      </select>
+                    </select>
                 </div>
-                <!--<div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2"><i class="fa fa-calendar mr-2"></i>Expiration Date & Time</label>
-                    <input type="datetime-local" id="expiration" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                </div>-->
-                
                 <div class="flex justify-center pt-5">
-                    <button id="submit-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out" type="submit">Add Task</button>
+                    <button id="submit-btn" class="btn-primary font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline" type="submit">Add Task</button>
                 </div>
-                <!--<div class="flex justify-center pt-5">
-                    <button id="view-tasks" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">View Tasks</button>
-                </div>-->
             </form>
-            <div id="task-list" class="mt-20">
-                    
+            <div id="task-list" class="mt-10">
+                <!-- Task list will be dynamically generated here -->
             </div>
         </div>
     </div>
-    <div>
-    </div>
-    
-    
     <script src="/app.js"></script>
 </body>
 </html>

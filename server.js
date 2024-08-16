@@ -2,15 +2,32 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const path = require('path');
+const bcrypt = require('bcrypt');
+const session = require('express-session');
 
 const app = express();
 const db = new sqlite3.Database('db.sqlite');
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
+app.use(session({
+    secret: '1223445',  
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }  
+}));
+
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'app.html'));
-  });
+    res.sendFile(path.join(__dirname, 'splash.html'));
+});
+
+app.get('/login', (req, res) => {
+    res.sendFile(__dirname + '/login.html');  
+});
+
+app.get('/register', (req,res) => {
+    res.sendFile(__dirname + '/register.html');
+});
 
 db.serialize( ()=>{      // database creation
     db.run(`
@@ -23,6 +40,13 @@ db.serialize( ()=>{      // database creation
             completed INTEGER DEFAULT 0
         )
         `);
+    db.run(`
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            password TEXT NOT NULL
+        )
+       `);
 });
 
 app.post('/addTask', (req, res) => {   // api for adding tasks
@@ -96,8 +120,42 @@ app.post('/markCompleted', (req,res) =>{    // api for task cpmpletion
             return res.status(500).send(error.message);
         }
         fetchTasks(res);
-    })
-})
+    });
+});
+
+app.post('/register', (req,res) => {
+    const {username, password} = req.body;
+    const hashedPassword = bcrypt.hashSync(password,10);
+    db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashedPassword], function(error) {
+        if (error) {
+            return res.json({ success: false, message: 'Username already exists' });
+        }
+        res.json({ success: true });
+    });
+});
+
+app.post('/login', (req,res) =>{
+    const {username, password} = req.body;
+    db.get('SELECT * FROM users WHERE username = ?', [username], (error,user)=>{
+        if(error||!user||!bcrypt.compareSync(password,user.password)){
+            return res.json({ success: false, message: 'Invalid credentials' });
+        }
+        req.session.userId = user.id;
+        req.session.username = user.username;
+        return res.json({success:true});
+    });
+});
+
+function isAuthenticated(req, res, next) {
+    if (req.session.userId) {
+        return next();
+    }
+    res.redirect('/login');
+}
+
+app.get('/app.html', isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, 'app.html'));
+});
 
 
 module.exports = {app,db};
