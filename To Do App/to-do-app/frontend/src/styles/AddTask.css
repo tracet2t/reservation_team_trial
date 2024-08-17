@@ -16,12 +16,12 @@ form {
   @apply flex flex-col space-y-2;
 }
   
-lable{
+.lable{
   @apply block text-sm font-medium;
 }
 
 input[type="text"], textarea, input[type="date"],select {
-  @apply w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500;
+  @apply w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
 }
 
 textarea {

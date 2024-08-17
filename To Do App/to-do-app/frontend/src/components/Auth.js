@@ -1,6 +1,6 @@
 import React, { useState } from'react';
 import { useNavigate } from'react-router-dom';
-// import'../styles/Auth.css';
+import'../styles/Auth.css';
 
 function Auth() {
   const [isRegistering, setIsRegistering] = useState(true);
@@ -19,17 +19,17 @@ function Auth() {
   };
 
   return (
-    <form onSubmit={handleAuth}class Name="auth-form">
-        <h1 class Name="text-2xl font-bold mb-4">{isRegistering ? 'Register' : 'Login'}</h1>
-        <label class Name="block mb-2">Username:</label>
-        <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full p-2 border rounded mb-4" required />
-        <label class Name="block mb-2">Password:</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-2 border rounded mb-4" required />
-        <button type="submit"class Name="bg-blue-500 text-white px-4 py-2 rounded">{isRegistering ? 'Register' : 'Login'}</button>
-        <p onClick={() => setIsRegistering(!isRegistering)} className="text-blue-500 cursor-pointer mt-4">
-        {isRegistering ? 'Already have an account? Login' : "Don't have an account? Register"}</p>
-      
-    </form>
+    <div className="auth-container">
+      <form onSubmit={handleAuth} className="auth-form">
+        <h1 className="auth-title">{isRegistering ? 'Register' : 'Login'}</h1>
+        <label className="auth-label">Username:</label>
+        <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="auth-input" required />
+        <label className="auth-label">Password:</label>
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="auth-input" required />
+        <button type="submit" className="auth-button"> {isRegistering ? 'Register' : 'Login'} </button>
+        <p onClick={() => setIsRegistering(!isRegistering)} className="auth-toggle"> {isRegistering? 'Already have an account? Login': "Don't have an account? Register"}</p>
+      </form>
+  </div>
   );
 }
 

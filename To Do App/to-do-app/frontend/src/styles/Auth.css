@@ -1,0 +1,31 @@
+html, body {
+  @apply h-full m-0;
+}
+
+.auth-container {
+  @apply flex items-center justify-center h-screen bg-gray-100 overflow-hidden;
+}
+
+.auth-form {
+  @apply p-8 bg-white rounded-lg shadow-lg w-full max-w-lg;
+}
+
+.auth-title {
+  @apply text-3xl font-bold mb-6;
+}
+
+.auth-label {
+  @apply block text-gray-700 mb-2 text-lg;
+}
+
+.auth-input {
+  @apply w-full p-3 border border-gray-300 rounded mb-4 text-lg;
+}
+
+.auth-button {
+  @apply w-full p-3 bg-blue-500 text-white rounded hover:bg-blue-600 text-lg;
+}
+
+.auth-toggle {
+  @apply text-blue-500 cursor-pointer mt-4 text-lg;
+}
