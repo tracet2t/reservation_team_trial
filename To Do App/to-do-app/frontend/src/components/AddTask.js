@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from'react-router-dom';
 import '../styles/AddTask.css';
 
-
 function AddTask() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
