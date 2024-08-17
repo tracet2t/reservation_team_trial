@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let editMode = false;
     let taskToEdit = null;
 
+    // Load tasks from Local Storage on page load
+    loadTasksFromLocalStorage();
+
     // Add task on button click
     addTaskBtn.addEventListener('click', () => handleAddTask());
 
@@ -32,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Clear the input field
         taskInput.value = '';
+        saveTasksToLocalStorage(); // Save tasks after each change
     }
 
     // update an existing task
@@ -48,14 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
         taskList.appendChild(taskItem);
     }
 
-    // create a task element
+    // create a task
     function createTaskElement(taskTitle) {
         const taskItem = document.createElement('li');
         taskItem.classList.add('flex', 'items-center', 'justify-between', 'bg-gray-200', 'p-2', 'rounded', 'mb-2');
 
         const taskText = document.createElement('span');
         taskText.textContent = taskTitle;
-        taskText.classList.add('task-text'); // Add a class for styling
+        taskText.classList.add('task-text');
 
         const buttonContainer = createButtonContainer(taskItem);
 
@@ -65,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return taskItem;
     }
 
-    // create a button 
+    // create a button container 
     function createButtonContainer(taskItem) {
         const buttonContainer = document.createElement('div');
         buttonContainer.classList.add('flex', 'space-x-2'); 
@@ -99,5 +103,24 @@ document.addEventListener('DOMContentLoaded', () => {
     //delete a task
     function deleteTask(taskItem) {
         taskList.removeChild(taskItem);
+        saveTasksToLocalStorage();
+    }
+
+    // Save tasks to Local Storage
+    function saveTasksToLocalStorage() {
+        const tasks = [];
+        taskList.querySelectorAll('li').forEach(taskItem => {
+            tasks.push(taskItem.querySelector('.task-text').textContent);
+        });
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+    
+    // Load tasks from Local Storage
+    function loadTasksFromLocalStorage() {
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        tasks.forEach(taskTitle => {
+            const taskItem = createTaskElement(taskTitle);
+            taskList.appendChild(taskItem);
+        });
     }
 });
