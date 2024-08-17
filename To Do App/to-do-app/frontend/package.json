@@ -4,13 +4,16 @@
   "private": true,
   "dependencies": {
     "@prisma/client": "^5.18.0",
+    "@svgr/plugin-svgo": "^8.1.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.4",
     "next": "^14.2.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.1",
-    "react-scripts": "^3.0.1",
+    "react-scripts": "^5.0.1",
+    "react-toastify": "^10.0.5",
+    "resolve-url-loader": "^5.0.0",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

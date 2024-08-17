@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { addTask } from '../api/taskApi';
-import './AddTask.css';
+import '../styles/AddTask.css';
+
 
 function AddTask() {
   const [title, setTitle] = useState('');
