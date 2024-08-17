@@ -6,35 +6,38 @@ body {
   @apply flex items-center justify-center bg-gray-100;
 }
 
-.App {
-  @apply flex flex-col items-center justify-center text-center max-w-3xl w-full p-4;
-  text-align: center;
+h2 {
+  @apply text-2xl font-semibold mb-4;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+form {
+  @apply flex flex-col space-y-2;
 }
-h1 {
-  @apply text-4xl font-bold mb-6;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+  
+.label {
+  @apply block text-sm font-medium;
 }
 
-
-.App-link {
-  color: #61dafb;
+input, textarea, select {
+  @apply w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+textarea {
+  @apply h-28 resize-none;
+}
+
+button {
+  @apply bg-blue-500 text-white px-5 py-3 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-green-500;
+}
+
+.app-container {
+  @apply flex w-full max-w-6xl mx-auto p-6 bg-gray-200 rounded-lg shadow-lg;
+}
+
+.add-task-container {
+  @apply flex-grow p-6 bg-white shadow-lg rounded-lg mr-6;
+}
+
+.task-list-container {
+  @apply w-3/5 p-4;
 }
