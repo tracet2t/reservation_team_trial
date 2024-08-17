@@ -1,0 +1,26 @@
+/* EditTask.css */
+.task-form {
+  @apply bg-white p-6 rounded-lg shadow-md;  
+}
+
+.task-form h1 {
+  @apply text-3xl font-bold mb-6;
+}
+
+.task-form label {
+  @apply block text-sm font-medium text-gray-800 mb-3;
+}
+
+.task-form input[type="text"],
+.task-form textarea,
+.task-form select {
+  @apply block w-full border border-gray-300 rounded-md p-3 mb-5;
+}
+
+.task-form input[type="date"] {
+  @apply block w-full border border-gray-300 rounded-md p-3 mb-52;
+}
+
+.submit-button {
+  @apply bg-blue-500 text-white py-3 px-6 rounded-md hover:bg-blue-600;
+}

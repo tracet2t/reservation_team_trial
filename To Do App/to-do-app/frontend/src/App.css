@@ -5,7 +5,9 @@ html, body {
 body {
   @apply flex items-center justify-center bg-gray-100;
 }
-
+h1{
+  @apply text-2xl font-bold mb-6;
+}
 h2 {
   @apply text-2xl font-semibold mb-4;
 }
