@@ -123,26 +123,26 @@ app.post('/markCompleted', (req,res) =>{    // api for task cpmpletion
     });
 });
 
-app.post('/register', (req,res) => {
+app.post('/register', (req,res) => {   // api for user registration
     const {username, password} = req.body;
     const hashedPassword = bcrypt.hashSync(password,10);
     db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashedPassword], function(error) {
         if (error) {
-            return res.json({ success: false, message: 'Username already exists' });
+            return res.status(400).json({ success: false, message: 'Username already exists' });
         }
-        res.json({ success: true });
+        res.json({ success: true});
     });
 });
 
-app.post('/login', (req,res) =>{
+app.post('/login', (req,res) =>{   // api for user login
     const {username, password} = req.body;
     db.get('SELECT * FROM users WHERE username = ?', [username], (error,user)=>{
         if(error||!user||!bcrypt.compareSync(password,user.password)){
-            return res.json({ success: false, message: 'Invalid credentials' });
+            return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
         req.session.userId = user.id;
         req.session.username = user.username;
-        return res.json({success:true});
+        return res.status(200).json({success:true});
     });
 });
 

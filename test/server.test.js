@@ -1,5 +1,6 @@
 const {app,db} = require("../server")
 const request = require('supertest');
+const bcrypt = require('bcrypt');
 let server;
 
 db.serialize(() => {
@@ -13,6 +14,13 @@ db.serialize(() => {
             completed INTEGER DEFAULT 0
         )
     `);
+    db.run(`
+        CREATE TABLE IF NOT EXISTS users (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          username TEXT NOT NULL UNIQUE,
+          password TEXT NOT NULL
+        )
+      `);
 });
 
 
@@ -26,7 +34,8 @@ afterAll((done) => {
 });
 
 beforeEach((done) => {
-    db.run('DELETE FROM tasks', done); // Clear the tasks table before each test
+    db.run('DELETE FROM tasks', done);
+    db.run('DELETE FROM users', done);   // Clear the tables before each test
 });
 
 
@@ -93,7 +102,7 @@ test('is the task updated ', async () => {   // test for updating tasks
     expect(updateResponse.body.tasks.find(task => task.id === taskId).title).toBe('Updated title');
  })
 
- test('is the task completed', async () => {   // test for task completion
+test('is the task completed', async () => {   // test for task completion
     const addResponse = await request(server)
       .post('/addTask')
       .send({title:'Task completion', description: 'Completed task', dueDate: '2024-08-11', priority: 'Low'});
@@ -107,3 +116,55 @@ test('is the task updated ', async () => {   // test for updating tasks
     expect(completeResponse.status).toBe(200);
     expect(completeResponse.body.tasks.find(task => task.id === taskId).completed).toBe(1);
   })
+
+test('is a new user registered successfully', async () => {   // test for user registration
+    const response = await request(server)
+      .post('/register')
+      .send({ username: 'testuser', password: 'testpassword' });
+  
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toStrictEqual({success:true});
+  });
+  
+test('is it fail to register users with duplicate username', async () => {   // test for user registration fail
+    await request(app)
+      .post('/register')
+      .send({ username: 'testuser', password: 'testpassword' });
+  
+    const response = await request(server)
+      .post('/register')
+      .send({ username: 'testuser', password: 'newpassword' });
+  
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toStrictEqual({
+        success: false,
+        message: 'Username already exists'
+      });
+  });
+
+test('is the user logged in successfully with correct credentials', async () => {  // test to login users
+    const hashedPassword = bcrypt.hashSync('testpassword', 10);
+    await db.run(`INSERT INTO users (username, password) VALUES (?, ?)`, ['testuser', hashedPassword]);
+
+    const response = await request(app)
+      .post('/login')
+      .send({ username: 'testuser', password: 'testpassword' });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toStrictEqual({ success: true });
+});
+  
+test('is it fail to log the user with incorrect credentials', async () => {   // test to fail login users
+    await db.run(`INSERT INTO users (username, password) VALUES (?, ?)`, ['testuser', 'testpassword']);
+  
+    const response = await request(app)
+      .post('/login')
+      .send({ username: 'testuser', password: 'wrongpassword' });
+  
+    expect(response.statusCode).toBe(401);
+    expect(response.body).toStrictEqual({
+        success: false,
+        message: 'Invalid credentials'
+      });
+  });
+  

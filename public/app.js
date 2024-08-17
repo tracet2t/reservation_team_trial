@@ -65,7 +65,6 @@ document.addEventListener('DOMContentLoaded',()=>{
           taskList.appendChild(taskElement);
       });
     }
-  
 
     function fetchTasks() {     // function for viewing tasks
       fetch('/tasks')
