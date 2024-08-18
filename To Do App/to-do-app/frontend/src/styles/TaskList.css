@@ -1,0 +1,54 @@
+.add-task-container, .task-list-container {
+    padding: 18px;
+  }
+  
+  .input {
+    display: block;
+    width: 100%;
+    padding: 28px;
+    margin-bottom: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .btn-primary {
+    background-color: #3490dc;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .task-item {
+    background-color: #f8f9fa;
+    padding: 16px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .task-details h3 {
+    margin: 0;
+  }
+  
+  .task-details p {
+    margin: 4px 0;
+  }
+  
+  .task-actions button {
+    margin-left: 8px;
+    padding: 10px;
+  }
+  

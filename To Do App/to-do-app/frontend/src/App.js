@@ -9,7 +9,7 @@ import './App.css';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-    
+
   return (
     <Router>
       <div className="App">

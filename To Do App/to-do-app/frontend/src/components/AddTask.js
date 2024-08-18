@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from'react-router-dom';
 import '../styles/AddTask.css';
 
-function AddTask() {
+function AddTask({ onAddTask }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
@@ -11,10 +11,14 @@ function AddTask() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newTask = { title, description, dueDate, priority };
-    console.log(newTask); 
-  };
+    if (!title) return;
+    onAddTask({ title, description, dueDate, priority, completed: false});
 
+    setTitle('');
+    setDescription('');
+    setDueDate('');
+  };
+  
   return (
     <div className="add-task-container">
       <h2>Add New Task</h2>

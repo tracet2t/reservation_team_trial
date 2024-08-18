@@ -1,13 +1,21 @@
 import React from 'react';
+import '../styles/TaskList.css';
 
-function TaskItem({ task }) {
+function TaskItem({  task, onComplete, onEdit, onDelete }) {
     return (
-        <div className="task-item border p-4 mb-2 rounded shadow-md">
-        <h3 className="text-xl font-semibold">{task.title}</h3>
-        <p>{task.description}</p>
-        <p><strong>Due Date:</strong> {task.dueDate}</p>
+      <div className="task-item">
+        <div className="task-details">
+          <h3 className="title">{task.title}</h3>
+          <p>{task.description}</p>
+          <p>Due: {task.dueDate}</p>
+      </div>
+      <div className="task-actions">
         <p><strong>Priority:</strong> {task.priority}</p>
         <p><strong>Completed:</strong> {task.completed ? 'Yes' : 'No'}</p>
+        <button onClick={onComplete} className="btn-secondary">Complete</button>
+        <button onClick={onEdit} className="btn-secondary">Edit</button>
+        <button onClick={onDelete} className="btn-secondary">Delete</button>
+      </div>
       </div>
     );
   }
