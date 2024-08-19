@@ -2,7 +2,7 @@ import './App.css'
 import "bootstrap/dist/css/bootstrap.min.css";
 import Home from "./features/home/Home";
 import { Route, Routes } from "react-router-dom";
-import CreateUser from "./features/create_user/CreateUser";
+import CreateUser from './features/create_todo/CreateTodo';
 
 function App() {
   return (

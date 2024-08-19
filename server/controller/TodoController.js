@@ -2,6 +2,17 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+// Get all todos
+export const getAll = async (req, res) => {
+  try {
+    const todos = await prisma.todo.findMany();
+    res.status(200).json(todos);
+  } catch (error) {
+    console.error("Error retrieving todos:", error);
+    res.status(500).json({ error: "Error retrieving todos" });
+  }
+};
+
 // Create a new todo
 export const store = async (req, res) => {
   const { title, dueDate, description, priority } = req.body;
@@ -10,7 +21,7 @@ export const store = async (req, res) => {
     const newTodo = await prisma.todo.create({
       data: {
         title,
-        dueDate: new Date(dueDate), // Ensure dueDate is in Date format
+        dueDate: dueDate, // Ensure dueDate is in Date format
         description,
         priority,
       },
@@ -55,7 +66,7 @@ export const update = async (req, res) => {
       where: { id: Number(id) },
       data: {
         title,
-        dueDate: new Date(dueDate),
+        dueDate: dueDate,
         description,
         priority,
       },
