@@ -24,10 +24,10 @@ export const updateItem = createAsyncThunk(
   "items/updateItem",
   async (updatedItem) => {
     const response = await axios.put(
-      `http://localhost:5000/items/${updatedItem.id}`,
+      `${APP_URL}/todos/${updatedItem.id}`,
       updatedItem
     );
-    return response.data;
+    return response.data.todo;
   }
 );
 
@@ -58,6 +58,7 @@ const CreateTodoSlice = createSlice({
         state.todos.push(action.payload);
       })
       .addCase(updateItem.fulfilled, (state, action) => {
+        state.status = "succeeded"
         const index = state.todos.findIndex(
           (item) => item.id === action.payload.id
         );

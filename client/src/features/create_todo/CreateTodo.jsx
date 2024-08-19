@@ -48,7 +48,7 @@ const CreateUser = () => {
       };
       dispatch(addItem(userData));
       toast.success("User created successfully!");
-      // Optionally, reset the form fields after submission
+      // reset the form fields after submission
       setTitle("");
       setDueDate("");
       setPriority("");
@@ -57,7 +57,7 @@ const CreateUser = () => {
       // Redirect to home page after a short delay
       setTimeout(() => {
         navigate("/");
-      }, 2000); // Adjust the delay as needed
+      }, 1000); // Adjust the delay as needed
     }
   };
 
@@ -130,9 +130,9 @@ const CreateUser = () => {
                   isInvalid={!!errors.priority}
                 >
                   <option value="">Select Priority</option>
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">
                   {errors.priority}

@@ -9,7 +9,11 @@ import { Link } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteItem, fetchItems } from "../create_todo/CreateTodoSlice";
+import {
+  deleteItem,
+  fetchItems,
+  updateItem,
+} from "../create_todo/CreateTodoSlice";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
@@ -17,6 +21,7 @@ const Home = () => {
   const [showModal, setShowModal] = useState(false);
   const [currentTask, setCurrentTask] = useState(null);
   const [editedTask, setEditedTask] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
   const dispatch = useDispatch();
   const todos = useSelector((state) => state.todos.todos);
   const status = useSelector((state) => state.todos.status);
@@ -29,7 +34,12 @@ const Home = () => {
 
   const handleEdit = (task) => {
     setCurrentTask(task);
-    setEditedTask({ ...task });
+    setEditedTask({
+      title: task.title,
+      description: task.description,
+      dueDate: task.dueDate ? task.dueDate.slice(0, 10) : "", // Format date as YYYY-MM-DD
+      priority: task.priority,
+    });
     setShowModal(true);
   };
 
@@ -38,8 +48,23 @@ const Home = () => {
     setCurrentTask(null);
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setEditedTask({ ...editedTask, [name]: value });
+  };
+
+  const handleSaveChanges = () => {
+    if (currentTask) {
+      dispatch(updateItem({ ...currentTask, ...editedTask })).then(() => {
+        if (status === "succeeded") {
+          toast.success("Updated successfully...", { theme: "colored" });
+          handleCloseModal();
+        }
+      });
+    }
+  };
+
   const handleDelete = (id) => {
-    console.log("delete id", id)
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -59,15 +84,16 @@ const Home = () => {
     });
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setEditedTask({ ...editedTask, [name]: value });
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
   };
 
-  const handleSaveChanges = () => {
-    // Implement saving changes logic here
-    handleCloseModal();
-  };
+  const filteredTodos = todos.filter(
+    (t) =>
+      t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.dueDate.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <Container>
@@ -75,7 +101,12 @@ const Home = () => {
         <Col md={5}>
           <Form>
             <Form.Group className="mb-3" controlId="search">
-              <Form.Control type="text" placeholder="Search...." />
+              <Form.Control
+                type="text"
+                placeholder="Search...."
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
             </Form.Group>
           </Form>
         </Col>
@@ -85,7 +116,7 @@ const Home = () => {
           </Link>
         </Col>
       </Row>
-      <Table striped bordered hover responsive>
+      <Table striped bordered hover responsive className="align-middle">
         <thead>
           <tr>
             <th>#</th>
@@ -97,12 +128,14 @@ const Home = () => {
           </tr>
         </thead>
         <tbody>
-          {todos.map((t, index) => (
+          {filteredTodos.map((t, index) => (
             <tr key={t.id}>
-              <td>{++index}</td>
+              <td>{index + 1}</td>
               <td className="text-nowrap">{t.title}</td>
               <td className="text-nowrap">{t.description}</td>
-              <td className="text-nowrap">{t.dueDate}</td>
+              <td className="text-nowrap">
+                {t.dueDate ? t.dueDate.slice(0, 10) : ""}
+              </td>
               <td className="text-nowrap">{t.priority}</td>
               <td className="text-nowrap">
                 <Button
@@ -121,6 +154,7 @@ const Home = () => {
         </tbody>
       </Table>
 
+      {/* Modal Component */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Edit Task</Modal.Title>

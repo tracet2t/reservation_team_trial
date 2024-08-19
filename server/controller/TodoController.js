@@ -21,7 +21,7 @@ export const store = async (req, res) => {
     const newTodo = await prisma.todo.create({
       data: {
         title,
-        dueDate: dueDate, // Ensure dueDate is in Date format
+        dueDate: new Date(dueDate), // Ensure dueDate is in Date format
         description,
         priority,
       },
@@ -66,7 +66,7 @@ export const update = async (req, res) => {
       where: { id: Number(id) },
       data: {
         title,
-        dueDate: dueDate,
+        dueDate: new Date(dueDate),
         description,
         priority,
       },
@@ -106,3 +106,4 @@ export const deleteById = async (req, res) => {
     }
   }
 };
+

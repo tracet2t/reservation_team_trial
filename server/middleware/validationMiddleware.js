@@ -20,7 +20,7 @@ const userSchema = Joi.object({
     'string.empty': 'Description cannot be an empty field',
     'any.required': 'Description is a required field'
   }),
-  priority: Joi.string().valid('low', 'medium', 'high').required().messages({
+  priority: Joi.string().valid('Low', 'Medium', 'High').required().messages({
     'string.base': 'Priority should be a type of text',
     'any.only': 'Priority must be one of [low, medium, high]',
     'string.empty': 'Priority cannot be an empty field',
