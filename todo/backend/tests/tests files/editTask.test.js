@@ -1,4 +1,4 @@
-const { editTask, tasks } = require('../controllers/editTaskController'); // Adjust the path as needed
+const { editTask, tasks } = require('../../controllers/editTaskController'); // Adjust the path as needed
 
 beforeEach(() => {
   // Reset tasks array before each test

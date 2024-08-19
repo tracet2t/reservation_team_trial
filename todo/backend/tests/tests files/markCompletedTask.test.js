@@ -1,4 +1,4 @@
-const { markCompleted, tasks } = require('../controllers/markCompletedController');
+const { markCompleted, tasks } = require('../../controllers/markCompletedController');
 
 beforeEach(() => {
   // Reset tasks array before each test

@@ -1,4 +1,4 @@
-const { addTask } = require('../controllers/addTaskController');
+const { addTask } = require('../../controllers/addTaskController');
 
 describe('Task Management', () => {
     it('should add a new task with title, description, due date, and priority', () => {

@@ -1,4 +1,4 @@
-const { notifyUpcomingTasks, tasks } = require('../controllers/notificationsController');
+const { notifyUpcomingTasks, tasks } = require('../../controllers/notificationsController');
 
 beforeEach(() => {
   // Reset tasks array before each test

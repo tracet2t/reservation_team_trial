@@ -1,4 +1,4 @@
-const { deleteTask, tasks } = require('../controllers/deleteTaskController');
+const { deleteTask, tasks } = require('../../controllers/deleteTaskController');
 
 beforeEach(() => {
   // Reset tasks array before each test

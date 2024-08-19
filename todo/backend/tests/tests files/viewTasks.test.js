@@ -1,4 +1,4 @@
-const { getTasks, tasks } = require('../controllers/viewTasksController');
+const { getTasks, tasks } = require('../../controllers/viewTasksController');
 
 beforeEach(() => {
   // Resetting tasks array before each test

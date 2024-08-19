@@ -1,4 +1,4 @@
-const { setExpiration, tasks } = require('../controllers/setExpirationController');
+const { setExpiration, tasks } = require('../../controllers/setExpirationController');
 
 beforeEach(() => {
   // Reset tasks array before each test
