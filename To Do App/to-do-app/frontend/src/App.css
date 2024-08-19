@@ -41,5 +41,5 @@ button {
 }
 
 .task-list-container {
-  @apply w-3/5 p-4;
+  @apply flex-grow ;
 }
