@@ -1,58 +1,108 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { BrowserRouter as Router } from 'react-router-dom';
 import Register from './Register';
 
+// Mock console.error to avoid actual error logging during tests
+jest.spyOn(console, 'error').mockImplementation(() => {});
+
 describe('Register Component', () => {
-  // Test Case 1: Renders the component and checks if the username, password inputs, and the register button are present.
-  test('renders Register component with username, password inputs, and register button', () => {
-    render(<Register />);
-    
-    // Check if the input fields and button are present in the document
-    expect(screen.getByPlaceholderText(/username/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/password/i)).toBeInTheDocument();
+  const renderWithRouter = (ui, { route = '/' } = {}) => {
+    window.history.pushState({}, 'Test page', route);
+    return render(ui, { wrapper: Router });
+  };
 
-    // Use getByRole to find the button by its role and name
-    expect(screen.getByRole('button', { name: /register/i })).toBeInTheDocument();
+  test('handles registration success', async () => {
+    // Mock successful registration API call
+    const mockFetch = jest.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ message: 'Registration successful' }),
+    });
+
+    renderWithRouter(<Register fetchFunction={mockFetch} />);
+
+    // Fill out the form fields
+    fireEvent.change(screen.getByPlaceholderText('Username'), {
+      target: { value: 'testuser' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('Password'), {
+      target: { value: 'testpassword' },
+    });
+
+    // Click the Register button using getByRole to avoid conflict
+    fireEvent.click(screen.getByRole('button', { name: /Register/i }));
+
+    // Wait for the mock function to be called and assert it was called with the correct arguments
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:5000/register',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: 'testuser',
+            password: 'testpassword',
+          }),
+        }
+      );
+    });
   });
 
-  // Test Case 2: Updates the username and password fields and checks if the state is updated correctly.
-  test('updates the username and password fields correctly', () => {
-    render(<Register />);
+  test('handles registration failure', async () => {
+    // Mock failed registration API call
+    const mockFetch = jest.fn().mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ message: 'Registration failed' }),
+    });
 
-    const usernameInput = screen.getByPlaceholderText(/username/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
+    renderWithRouter(<Register fetchFunction={mockFetch} />);
 
-    fireEvent.change(usernameInput, { target: { value: 'testuser' } });
-    fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
+    // Fill out the form fields
+    fireEvent.change(screen.getByPlaceholderText('Username'), {
+      target: { value: 'testuser' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('Password'), {
+      target: { value: 'testpassword' },
+    });
 
-    expect(usernameInput.value).toBe('testuser');
-    expect(passwordInput.value).toBe('testpassword');
+    // Click the Register button using getByRole to avoid conflict
+    fireEvent.click(screen.getByRole('button', { name: /Register/i }));
+
+    // Wait for the error to be logged to the console
+    await waitFor(() => {
+      expect(console.error).toHaveBeenCalledWith(
+        'Registration Error:',
+        'Registration failed'
+      );
+    });
   });
 
-  // Test Case 3: Simulates the registration process and checks if the handleRegister function is called with the correct values.
-  test('calls handleRegister on button click and clears inputs', () => {
-    render(<Register />);
+  test('renders Register form and handles input changes', async () => {
+    renderWithRouter(<Register />);
 
-    const usernameInput = screen.getByPlaceholderText(/username/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
-    const registerButton = screen.getByRole('button', { name: /register/i });
+    expect(screen.getByPlaceholderText(/Username/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Password/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Register/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Already have an account\?/i })).toBeInTheDocument();
 
-    fireEvent.change(usernameInput, { target: { value: 'testuser' } });
-    fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
+    // Fill out the form fields
+    fireEvent.change(screen.getByPlaceholderText('Username'), {
+      target: { value: 'testuser' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('Password'), {
+      target: { value: 'testpassword' },
+    });
+  });
 
-    // Spy on console.log to verify the handleRegister function output
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+  test('navigates to login page when "Already have an account?" button is clicked', () => {
+    renderWithRouter(<Register />);
 
-    fireEvent.click(registerButton);
+    // Click the "Already have an account?" button
+    fireEvent.click(screen.getByRole('button', { name: /Already have an account\?/i }));
 
-    // Check if console.log was called with the correct values
-    expect(consoleSpy).toHaveBeenCalledWith('Username:', 'testuser');
-    expect(consoleSpy).toHaveBeenCalledWith('Password:', 'testpassword');
-
-    consoleSpy.mockRestore();
-
-    // Verify that the inputs are cleared after submission
-    expect(usernameInput.value).toBe('');
-    expect(passwordInput.value).toBe('');
+    // Check if the navigation to the login page was triggered
+    expect(window.location.pathname).toBe('/login');
   });
 });

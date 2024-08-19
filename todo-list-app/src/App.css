@@ -79,3 +79,86 @@
   padding: 5px 10px; /* Reduced padding */
   font-size: 14px; /* Reduced font size */
 }
+
+/* Auth.css */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
+  background-color: #f4f4f9;
+  height: 100vh; /* Ensures container takes full viewport height */
+}
+
+.auth-form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center align items horizontally */
+}
+
+.auth-form h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+  text-align: center;
+}
+
+.auth-form input {
+  width: 100%; /* Adjusted to take full width */
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.auth-form button {
+  width: 100%; /* Adjusted to take full width */
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 10px; /* Adds space above the button */
+}
+
+.auth-form button:hover {
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid #000000;
+}
+
+/* Additional button for existing accounts */
+.auth-form .login-button {
+  margin-top: 20px; /* Adds space above the button */
+  background-color: #6c757d; /* Optional: Change color for distinction */
+  border: none;
+  color: #fff;
+}
+
+.auth-form .login-button:hover {
+  background-color: #5a6268; /* Optional: Change hover color */
+}
+
+.auth-form .login-link {
+  margin-top: 10px;
+  color: #007bff;
+  text-align: center;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  display: block;
+}
+
+.auth-form .login-link:hover {
+  color: #009bb3;
+}

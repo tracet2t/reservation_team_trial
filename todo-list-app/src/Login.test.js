@@ -1,27 +1,47 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import Login from './Login';
 
+// Mocking useNavigate
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+
 describe('Login Component', () => {
-  // Test Case 1: Renders the component and checks if the username, password inputs, and the login button are present.
-  test('renders Login component with username, password inputs, and login button', () => {
-    render(<Login handleLogin={jest.fn()} />);
-
-    const usernameInput = screen.getByPlaceholderText(/username/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
-    const loginButton = screen.getByText(/login/i);
-
-    expect(usernameInput).toBeInTheDocument();
-    expect(passwordInput).toBeInTheDocument();
-    expect(loginButton).toBeInTheDocument();
+  beforeEach(() => {
+    mockNavigate.mockClear(); // Clear mock before each test
+    jest.clearAllMocks(); // Clear all mocks before each test
   });
 
-  // Test Case 2: Updates the username and password fields and checks if the state is updated correctly.
-  test('updates the username and password fields correctly', () => {
-    render(<Login handleLogin={jest.fn()} />);
+  test('renders Login form', () => {
+    render(
+      <MemoryRouter>
+        <Login />
+      </MemoryRouter>
+    );
 
-    const usernameInput = screen.getByPlaceholderText(/username/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
+    // Check if the form elements are rendered
+    expect(screen.getByPlaceholderText(/Username/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Password/i)).toBeInTheDocument();
+    
+    // Use more specific query to check button text
+    const loginButtons = screen.getAllByText(/Login/i);
+    expect(loginButtons[0].tagName).toBe('H2'); // Check if the first one is the heading
+    expect(loginButtons[1].tagName).toBe('BUTTON'); // Check if the second one is the button
+  });
+
+  test('allows user to type in username and password', () => {
+    render(
+      <MemoryRouter>
+        <Login />
+      </MemoryRouter>
+    );
+
+    const usernameInput = screen.getByPlaceholderText(/Username/i);
+    const passwordInput = screen.getByPlaceholderText(/Password/i);
 
     fireEvent.change(usernameInput, { target: { value: 'testuser' } });
     fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
@@ -30,49 +50,92 @@ describe('Login Component', () => {
     expect(passwordInput.value).toBe('testpassword');
   });
 
-  // Test Case 3: Simulates the login process and checks if the handleLogin function is called with the correct values.
-  test('calls handleLogin on button click and clears inputs', () => {
-    const handleLogin = jest.fn();
-    render(<Login handleLogin={handleLogin} />);
+  test('submits the form and calls the login API', async () => {
+    const mockFetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ token: 'fakeToken' }),
+      })
+    );
 
-    const usernameInput = screen.getByPlaceholderText(/username/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
-    const loginButton = screen.getByText(/login/i);
+    global.fetch = mockFetch;
 
-    fireEvent.change(usernameInput, { target: { value: 'testuser' } });
-    fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
+    render(
+      <MemoryRouter>
+        <Login />
+      </MemoryRouter>
+    );
 
-    fireEvent.click(loginButton);
-
-    expect(handleLogin).toHaveBeenCalledWith('testuser', 'testpassword');
-    expect(usernameInput.value).toBe('');
-    expect(passwordInput.value).toBe('');
-  });
-
-  // Test Case 4: Displays error message for empty username and password.
-  test('displays error message for empty username and password', () => {
-    render(<Login handleLogin={jest.fn()} />);
-
-    const loginButton = screen.getByText(/login/i);
-    fireEvent.click(loginButton);
-
-    expect(screen.getByText(/username and password are required/i)).toBeInTheDocument();
-  });
-
-  // Test Case 5: Shows success message after successful login.
-  test('shows success message after successful login', () => {
-    const handleLogin = jest.fn();
-    render(<Login handleLogin={handleLogin} />);
-
-    const usernameInput = screen.getByPlaceholderText(/username/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
-    const loginButton = screen.getByText(/login/i);
+    const usernameInput = screen.getByPlaceholderText(/Username/i);
+    const passwordInput = screen.getByPlaceholderText(/Password/i);
+    const loginButton = screen.getByRole('button', { name: /Login/i });
 
     fireEvent.change(usernameInput, { target: { value: 'testuser' } });
     fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
 
     fireEvent.click(loginButton);
 
-    expect(screen.getByText(/login successful/i)).toBeInTheDocument();
+    expect(mockFetch).toHaveBeenCalledWith('http://localhost:5000/login', expect.any(Object));
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  test('handles successful login and redirects to ToDo page', async () => {
+    const mockFetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ token: 'fakeToken' }),
+      })
+    );
+
+    global.fetch = mockFetch;
+
+    // Mocking localStorage.setItem
+    const mockSetItem = jest.spyOn(Storage.prototype, 'setItem');
+
+    render(
+      <MemoryRouter>
+        <Login />
+      </MemoryRouter>
+    );
+
+    const loginButton = screen.getByRole('button', { name: /Login/i });
+
+    fireEvent.click(loginButton);
+
+    // Wait for the fetch to resolve
+    await screen.findByRole('button', { name: /Login/i }); // Ensures fetch completes before checking navigation
+
+    expect(mockSetItem).toHaveBeenCalledWith('token', 'fakeToken');
+    expect(mockNavigate).toHaveBeenCalledWith('/todo');
+  });
+
+  test('handles failed login attempt', async () => {
+    const mockFetch = jest.fn(() =>
+      Promise.resolve({
+        ok: false,
+        json: () => Promise.resolve({ message: 'Invalid credentials' }),
+      })
+    );
+
+    global.fetch = mockFetch;
+
+    // Mocking console.error
+    const mockConsoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    render(
+      <MemoryRouter>
+        <Login />
+      </MemoryRouter>
+    );
+
+    const loginButton = screen.getByRole('button', { name: /Login/i });
+
+    fireEvent.click(loginButton);
+
+    // Wait for the fetch to resolve
+    await screen.findByRole('button', { name: /Login/i }); // Ensures fetch completes
+
+    expect(mockNavigate).not.toHaveBeenCalled();
+    expect(mockConsoleError).toHaveBeenCalledWith('Invalid credentials');
   });
 });

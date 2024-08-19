@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ToDo = () => {
+  const [token, setToken] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -10,6 +12,17 @@ const ToDo = () => {
   const [currentTaskIndex, setCurrentTaskIndex] = useState(null);
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate(); 
+
+  useEffect(() => {
+    // Check if token exists in local storage
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      setToken(storedToken);
+    } else {
+      navigate('/login'); // Redirect to login if no token is found
+    }
+  }, [navigate]);
 
   const handleAddTask = () => {
     if (title.trim()) {
@@ -91,6 +104,10 @@ const ToDo = () => {
 
   return (
     <div className="todo-app">
+      <button onClick={() => {
+        localStorage.removeItem('token'); // Clear token on logout
+        navigate('/login');
+      }}>Logout</button> 
       <h1>To-Do List</h1>
       <input
         type="text"
