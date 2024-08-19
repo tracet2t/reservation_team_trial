@@ -16,7 +16,7 @@ export const fetchItems = createAsyncThunk("items/fetchItems", async () => {
 
 export const addItem = createAsyncThunk("items/addItem", async (newItem) => {
   const response = await axios.post(`${APP_URL}/store`, newItem);
-  console.log("Submit date", response.data.todo)
+  console.log("Submit date", response.data.todo);
   return response.data.todo;
 });
 
@@ -32,8 +32,8 @@ export const updateItem = createAsyncThunk(
 );
 
 export const deleteItem = createAsyncThunk("items/deleteItem", async (id) => {
-  await axios.delete(`http://localhost:5000/items/${id}`);
-  return id;
+  await axios.delete(`${APP_URL}/todos/${id}`);
+  return id; // Return the id of the deleted item
 });
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -58,13 +58,16 @@ const CreateTodoSlice = createSlice({
         state.todos.push(action.payload);
       })
       .addCase(updateItem.fulfilled, (state, action) => {
-        const index = state.items.findIndex(
-          (item) => item._id === action.payload._id
+        const index = state.todos.findIndex(
+          (item) => item.id === action.payload.id
         );
-        state.items[index] = action.payload;
+        if (index !== -1) {
+          state.todos[index] = action.payload;
+        }
       })
       .addCase(deleteItem.fulfilled, (state, action) => {
-        state.items = state.items.filter((item) => item._id !== action.payload);
+        state.status = "succeeded";
+        state.todos = state.todos.filter((item) => item.id !== action.payload);
       });
   },
 });
