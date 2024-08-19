@@ -8,10 +8,6 @@ function TaskList() {
   const tasks = [{ id: 1, title: "Task 1", description: "Description 1", dueDate: "2024-08-20", priority: "High", completed: false },
     { id: 2, title: "Task 2", description: "Description 2", dueDate: "2024-08-21", priority: "Medium", completed: true }];
   
-  const onEditTask = (taskId) => {
-    console.log("Edit task", taskId);
-  };
-
   const onDeleteTask = (taskId) => {
     console.log("Delete task", taskId);
   };
@@ -25,9 +21,10 @@ function TaskList() {
       <h1 className="title">All Tasks</h1>
       {tasks.map(task => (
         <TaskItem key={task.id}task={task}
-        onEdit={() => onEditTask(task.id)}
+        onEdit={() => {}}
         onDelete={() => onDeleteTask(task.id)}
-        onComplete={() => onCompleteTask(task.id)} />
+        onComplete={() => onCompleteTask(task.id)}
+        />
         ))}
         
     </div>

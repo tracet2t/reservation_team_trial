@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import '../styles/TaskList.css';
 
 function TaskItem({  task, onComplete, onEdit, onDelete }) {
@@ -11,9 +12,11 @@ function TaskItem({  task, onComplete, onEdit, onDelete }) {
       </div>
       <div className="task-actions">
         <p><strong>Priority:</strong> {task.priority}</p>
-        <p><strong>Completed:</strong> {task.completed ? 'Yes' : 'No'}</p>
-        <button onClick={onComplete} className="btn-secondary">Complete</button>
-        <button onClick={onEdit} className="btn-secondary">Edit</button>
+        <p><strong>Completed:
+          <input type="checkbox" checked={task.completed} onChange={onComplete}/> </strong></p>
+        <Link to={`/editTask`}>
+        {/* //need to connect by id later */}
+        <button>Edit</button></Link>
         <button onClick={onDelete} className="btn-secondary">Delete</button>
       </div>
       </div>

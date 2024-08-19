@@ -27,7 +27,7 @@ function App() {
               </>
               }
             />
-            <Route path="/editTask" element={<EditTask />} />
+            <Route path="/editTask/" element={<EditTask />} />
             <Route path="/auth/:authType" element={<Auth setIsAuthenticated={setIsAuthenticated}/>} />
           </Routes>
       </div>
