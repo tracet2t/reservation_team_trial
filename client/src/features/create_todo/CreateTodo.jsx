@@ -34,7 +34,7 @@ const CreateUser = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
@@ -46,20 +46,27 @@ const CreateUser = () => {
         priority,
         description,
       };
-      dispatch(addItem(userData));
-      toast.success("User created successfully!");
-      // reset the form fields after submission
-      setTitle("");
-      setDueDate("");
-      setPriority("");
-      setDescription("");
-      setErrors({});
-      // Redirect to home page after a short delay
-      setTimeout(() => {
-        navigate("/");
-      }, 1000); // Adjust the delay as needed
+  
+      try {
+        // eslint-disable-next-line no-unused-vars
+        const resultAction = await dispatch(addItem(userData)).unwrap(); // Unwrap to handle the resolved or rejected action
+        toast.success("User created successfully!");
+        // Reset the form fields after submission
+        setTitle("");
+        setDueDate("");
+        setPriority("");
+        setDescription("");
+        setErrors({});
+        // Redirect to home page after a short delay
+        setTimeout(() => {
+          navigate("/");
+        }, 1000); // Adjust the delay as needed
+      } catch (error) {
+        toast.error(error); // Display the error returned by the thunk
+      }
     }
   };
+  
 
   return (
     <Container>

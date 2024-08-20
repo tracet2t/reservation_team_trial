@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { APP_URL } from "../../main";
+import { axiosInstance } from "../../api/axiosInstance";
 
 const initialState = {
   todos: [],
@@ -9,15 +10,24 @@ const initialState = {
 };
 
 export const fetchItems = createAsyncThunk("items/fetchItems", async () => {
-  const response = await axios.get(`${APP_URL}/todos`);
-  console.log("All todos", response);
+  const response = await axiosInstance.get("/todos"); // Use relative path since baseURL is set
   return response.data;
 });
 
-export const addItem = createAsyncThunk("items/addItem", async (newItem) => {
-  const response = await axios.post(`${APP_URL}/store`, newItem);
-  console.log("Submit date", response.data.todo);
-  return response.data.todo;
+export const addItem = createAsyncThunk("items/addItem", async (newItem, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post("/store", newItem);
+    console.log("Submitted data", response.data.todo);
+    return response.data.todo;
+  } catch (error) {
+    if (!error.response) {
+      // Handle server down or network error
+      return rejectWithValue("Server is down or network error. Please try again later.");
+    } else {
+      // Handle other errors (e.g., validation errors)
+      return rejectWithValue(error.response.data.message || "An error occurred.");
+    }
+  }
 });
 
 export const updateItem = createAsyncThunk(

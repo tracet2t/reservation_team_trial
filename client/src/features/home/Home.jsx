@@ -8,6 +8,7 @@ import Form from "react-bootstrap/Form";
 import { Link } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import Alert from "react-bootstrap/Alert";
 import { useDispatch, useSelector } from "react-redux";
 import {
   deleteItem,
@@ -16,6 +17,7 @@ import {
 } from "../create_todo/CreateTodoSlice";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+import { Badge } from "react-bootstrap";
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
@@ -31,6 +33,18 @@ const Home = () => {
       dispatch(fetchItems());
     }
   }, [status, dispatch]);
+
+  const calculateRemainingDays = (dueDate, isCompleted) => {
+    if (isCompleted == 1) return "N/A";
+    if (!dueDate) return "N/A";
+
+    const due = new Date(dueDate);
+    const now = new Date();
+    const timeDiff = due - now;
+    const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+    return daysDiff > 0 ? daysDiff : "Past due";
+  };
 
   const handleEdit = (task) => {
     setCurrentTask(task);
@@ -92,7 +106,7 @@ const Home = () => {
     (t) =>
       t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.dueDate.toLowerCase().includes(searchQuery.toLowerCase())
+      (t.dueDate && t.dueDate.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
@@ -124,33 +138,56 @@ const Home = () => {
             <th className="text-nowrap">Description</th>
             <th className="text-nowrap">Due Date</th>
             <th className="text-nowrap">Priority</th>
+            <th className="text-nowrap">Is Completed</th>
+            <th className="text-nowrap">Remaining Days</th> {/* New Column */}
             <th className="text-nowrap">Action</th>
           </tr>
         </thead>
         <tbody>
-          {filteredTodos.map((t, index) => (
-            <tr key={t.id}>
-              <td>{index + 1}</td>
-              <td className="text-nowrap">{t.title}</td>
-              <td className="text-nowrap">{t.description}</td>
-              <td className="text-nowrap">
-                {t.dueDate ? t.dueDate.slice(0, 10) : ""}
-              </td>
-              <td className="text-nowrap">{t.priority}</td>
-              <td className="text-nowrap">
-                <Button
-                  variant="warning"
-                  onClick={() => handleEdit(t)}
-                  className="me-2"
-                >
-                  Edit
-                </Button>
-                <Button variant="danger" onClick={() => handleDelete(t.id)}>
-                  Delete
-                </Button>
+          {filteredTodos.length > 0 ? (
+            filteredTodos.map((t, index) => (
+              <tr key={t.id}>
+                <td>{index + 1}</td>
+                <td className="text-nowrap">{t.title}</td>
+                <td className="text-nowrap">{t.description}</td>
+                <td className="text-nowrap">
+                  {t.dueDate ? t.dueDate.slice(0, 10) : ""}
+                </td>
+                <td className="text-nowrap">{t.priority}</td>
+                <td className="text-nowrap">
+                  {t.isCompleted == 1 ? (
+                    <Badge bg="success">Complete</Badge>
+                  ) : (
+                    <Badge bg="warning" text="dark">
+                      Not Complete
+                    </Badge>
+                  )}
+                </td>
+                <td className="text-nowrap">
+                  {calculateRemainingDays(t.dueDate, t.isCompleted)}
+                </td>{" "}
+                {/* New Data */}
+                <td className="text-nowrap">
+                  <Button
+                    variant="warning"
+                    onClick={() => handleEdit(t)}
+                    className="me-2"
+                  >
+                    Edit
+                  </Button>
+                  <Button variant="danger" onClick={() => handleDelete(t.id)}>
+                    Delete
+                  </Button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="8" className="text-center">
+                <Alert variant="warning">No data found</Alert>
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </Table>
 
