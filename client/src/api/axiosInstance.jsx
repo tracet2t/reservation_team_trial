@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 // import { APP_URL } from "../main";
 
 export const axiosInstance = axios.create({
-  baseURL: "http://localhost:8000/api/v1", // use the same URL as defined in your index.js
+  baseURL: "http://localhost:8000/api/v1",
 });
 
 // Add a response interceptor
