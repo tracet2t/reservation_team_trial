@@ -9,6 +9,7 @@ const { taskSchema } = require('../validators/taskValidator.js');
 const validate = require('../middlewares/validate.js');
 
 const authenticate = require('../middlewares/authenticate.js');
+const TaskManager = require('../modules/taskmanager')
 
 // prisma for simplified interaction with db
 const { PrismaClient } = require('@prisma/client');
@@ -26,7 +27,6 @@ router.get('/todos', authenticate ,async (req, res) => {
     res.status(500).json({ error: 'Failed to retrieve tasks' });
   }
 });
-
 
 
 router.post('/todos', authenticate ,validate(taskSchema), async (req, res) => {
@@ -145,5 +145,18 @@ router.get('/todos/search', authenticate, async (req, res) => {
   }
 });
 
+router.get('/todos/expired-tasks', authenticate, async (req, res) => {
+  try {
+      const userId = req.user.userId; 
+      const taskManager = new TaskManager(userId);
+
+      const expiredTasks = await taskManager.findExpiredTasks();
+
+      res.status(200).json(expiredTasks);
+  } catch (error) {
+      console.error('Error fetching expired tasks:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 module.exports = router;
