@@ -178,4 +178,19 @@ document.addEventListener('DOMContentLoaded',()=>{
       return expirationTimes[taskId];
     }
 
-});
+
+    document.getElementById('search-btn').addEventListener('click', () => {
+      const query = document.getElementById('search-query').value.trim();
+      if(query){
+        searchTasks(query);
+      }
+    });
+
+    function searchTasks(query){
+      fetch(`/searchTasks?query=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => renderTasks(data.tasks))
+        .catch(error => console.error('Error searching tasks:', error));
+    }
+
+})

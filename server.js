@@ -157,6 +157,17 @@ app.get('/app.html', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'app.html'));
 });
 
+app.get('/searchTasks', (req,res) => {
+    const query = `%${req.query.query}%`;
+    db.all('SELECT * FROM tasks WHERE title LIKE ? OR description LIKE ?', [query, query], (error, rows) => {
+        if (error) {
+            console.error('Error searching tasks:', error.message);
+            return res.status(500).send(error.message);
+        }
+        res.json({ tasks: rows });
+    });
+});
+
 
 module.exports = {app,db};
 

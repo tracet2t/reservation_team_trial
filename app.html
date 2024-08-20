@@ -62,8 +62,15 @@
                         <option value="High">High</option>
                     </select>
                 </div>
-                <div class="flex justify-center pt-5">
+                <div class="flex justify-center pt-5 mb-5">
                     <button id="submit-btn" class="btn-primary font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline" type="submit">Add Task</button>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2 flex items-center">
+                        <i class="fa fa-search mr-2"></i>Search
+                    </label>
+                    <input type="text" id="search-query" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 transition duration-200 ease-in-out">
+                    <button id="search-btn" class="btn-primary font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline mt-2" type="button">Search</button>
                 </div>
             </form>
             <div id="task-list" class="mt-10">
