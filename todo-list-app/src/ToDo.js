@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 const ToDo = () => {
   const [token, setToken] = useState(null);
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState([]); // Ensure tasks is an array initially
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
@@ -12,17 +12,34 @@ const ToDo = () => {
   const [currentTaskIndex, setCurrentTaskIndex] = useState(null);
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if token exists in local storage
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
       setToken(storedToken);
+      fetchTasks(storedToken); // Fetch tasks on component mount
     } else {
       navigate('/login'); // Redirect to login if no token is found
     }
   }, [navigate]);
+
+  // Fetch tasks from the backend
+  const fetchTasks = (token) => {
+    fetch('http://localhost:5000/tasks', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => response.json())
+      .then(data => setTasks(data))
+      .catch(error => {
+        console.error('Error:', error);
+        setTasks([]); // Ensure tasks is an array even if the request fails
+      });
+  };
 
   const handleAddTask = () => {
     if (title.trim()) {
@@ -31,16 +48,45 @@ const ToDo = () => {
         description: description.trim(),
         dueDate: dueDate,
         priority: priority,
-        completed: false,
       };
-      setTasks([...tasks, newTask]);
-      clearForm();
+
+      fetch('http://localhost:5000/tasks', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newTask),
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.taskId) {
+            setTasks([...tasks, { ...newTask, id: data.taskId, completed: false }]);
+          }
+          clearForm();
+        })
+        .catch(error => console.error('Error:', error));
     }
   };
 
   const handleDeleteTask = (index) => {
-    const newTasks = tasks.filter((task, taskIndex) => taskIndex !== index);
-    setTasks(newTasks);
+    const taskId = tasks[index].id;
+
+    fetch(`http://localhost:5000/tasks/${taskId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message === 'Task deleted successfully') {
+          const newTasks = tasks.filter((task, taskIndex) => taskIndex !== index);
+          setTasks(newTasks);
+        }
+      })
+      .catch(error => console.error('Error:', error));
   };
 
   const handleEditTask = (index) => {
@@ -62,19 +108,53 @@ const ToDo = () => {
         priority: priority,
         completed: tasks[currentTaskIndex].completed,
       };
-      const updatedTasks = tasks.map((task, index) =>
-        index === currentTaskIndex ? updatedTask : task
-      );
-      setTasks(updatedTasks);
-      clearForm();
+
+      const taskId = tasks[currentTaskIndex].id;
+
+      fetch(`http://localhost:5000/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedTask),
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message === 'Task updated successfully') {
+            const updatedTasks = tasks.map((task, index) =>
+              index === currentTaskIndex ? { ...updatedTask, id: taskId } : task
+            );
+            setTasks(updatedTasks);
+            clearForm();
+          }
+        })
+        .catch(error => console.error('Error:', error));
     }
   };
 
   const handleToggleComplete = (index) => {
-    const updatedTasks = tasks.map((task, taskIndex) =>
-      taskIndex === index ? { ...task, completed: !task.completed } : task
-    );
-    setTasks(updatedTasks);
+    const task = tasks[index];
+    const updatedTask = { ...task, completed: !task.completed };
+
+    fetch(`http://localhost:5000/tasks/${task.id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedTask),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message === 'Task updated successfully') {
+          const updatedTasks = tasks.map((task, taskIndex) =>
+            taskIndex === index ? updatedTask : task
+          );
+          setTasks(updatedTasks);
+        }
+      })
+      .catch(error => console.error('Error:', error));
   };
 
   const clearForm = () => {
@@ -86,17 +166,19 @@ const ToDo = () => {
     setCurrentTaskIndex(null);
   };
 
-  const filteredTasks = tasks.filter((task) => {
-    if (filter === 'all') return true;
-    if (filter === 'completed') return task.completed;
-    if (filter === 'pending') return !task.completed;
-    return true;
-  }).filter((task) => {
-    return (
-      task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  });
+  const filteredTasks = Array.isArray(tasks) ? tasks
+    .filter((task) => {
+      if (filter === 'all') return true;
+      if (filter === 'completed') return task.completed;
+      if (filter === 'pending') return !task.completed;
+      return true;
+    })
+    .filter((task) => {
+      return (
+        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }) : [];
 
   const sortedTasks = filteredTasks.sort((a, b) => {
     return new Date(a.dueDate) - new Date(b.dueDate);
@@ -107,7 +189,7 @@ const ToDo = () => {
       <button onClick={() => {
         localStorage.removeItem('token'); // Clear token on logout
         navigate('/login');
-      }}>Logout</button> 
+      }}>Logout</button>
       <h1>To-Do List</h1>
       <input
         type="text"

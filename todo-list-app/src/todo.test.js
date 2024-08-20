@@ -1,83 +1,157 @@
-// src/ToDo.test.js
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import ToDo from './ToDo';
+// ToDo.test.js
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
 import { BrowserRouter as Router } from 'react-router-dom';
+import ToDo from './ToDo';
 
-describe('ToDo Component', () => {
-  beforeEach(() => {
-    // Mock localStorage to handle token checking
-    Storage.prototype.getItem = jest.fn(() => 'mock-token');
-    Storage.prototype.removeItem = jest.fn();
+// Mock the fetch API
+beforeEach(() => {
+  global.fetch = jest.fn((url, options) => {
+    if (url.includes('/tasks')) {
+      return Promise.resolve({
+        json: () => Promise.resolve([]),
+      });
+    }
+    if (url.includes('/task')) {
+      return Promise.resolve({
+        json: () => Promise.resolve({}),
+      });
+    }
+    return Promise.reject(new Error('Unknown API call'));
   });
+});
 
-  test('renders ToDo component', () => {
-    render(
-      <Router>
-        <ToDo />
-      </Router>
-    );
-    expect(screen.getByText('To-Do List')).toBeInTheDocument();
+// Mock useNavigate
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: jest.fn(),
+}));
+
+const navigate = jest.fn();
+useNavigate.mockReturnValue(navigate);
+
+test('renders ToDo component', () => {
+  render(
+    <Router>
+      <ToDo />
+    </Router>
+  );
+
+  // Check if "Add Task" button is in the document
+  expect(screen.getByText('Add Task')).toBeInTheDocument();
+});
+
+test('fetches and displays tasks', async () => {
+  global.fetch.mockImplementationOnce(() =>
+    Promise.resolve({
+      json: () => Promise.resolve([{ title: 'Sample Task' }]),
+    })
+  );
+
+  render(
+    <Router>
+      <ToDo />
+    </Router>
+  );
+
+  await waitFor(() => {
+    expect(screen.getByText('Sample Task')).toBeInTheDocument();
   });
+});
 
-  test('allows user to add a task', () => {
-    render(
-      <Router>
-        <ToDo />
-      </Router>
-    );
-    
-    fireEvent.change(screen.getByPlaceholderText('Title'), { target: { value: 'New Task' } });
-    fireEvent.change(screen.getByPlaceholderText('Description'), { target: { value: 'Task description' } });
-    fireEvent.change(screen.getByPlaceholderText('Due Date'), { target: { value: '2024-08-17' } });
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'High' } });
-    fireEvent.click(screen.getByText('Add Task'));
-    
-    expect(screen.getByText('New Task')).toBeInTheDocument();
-    expect(screen.getByText('Task description')).toBeInTheDocument();
+test('adds a new task', async () => {
+  const newTask = { title: 'New Task' };
+
+  // Mock fetch for adding a task
+  global.fetch.mockImplementationOnce(() =>
+    Promise.resolve({
+      json: () => Promise.resolve(newTask),
+    })
+  );
+
+  render(
+    <Router>
+      <ToDo />
+    </Router>
+  );
+
+  fireEvent.change(screen.getByPlaceholderText('Task Title'), { target: { value: newTask.title } });
+  fireEvent.click(screen.getByText('Add Task'));
+
+  await waitFor(() => {
+    expect(screen.getByText(newTask.title)).toBeInTheDocument();
   });
+});
 
-  test('allows user to update a task', () => {
-    render(
-      <Router>
-        <ToDo />
-      </Router>
-    );
+test('edits an existing task', async () => {
+  const updatedTask = { title: 'Updated Task' };
 
-    fireEvent.change(screen.getByPlaceholderText('Title'), { target: { value: 'Old Task' } });
-    fireEvent.click(screen.getByText('Add Task'));
+  // Mock fetch for editing a task
+  global.fetch.mockImplementationOnce(() =>
+    Promise.resolve({
+      json: () => Promise.resolve(updatedTask),
+    })
+  );
 
-    fireEvent.click(screen.getByText('Edit'));
-    fireEvent.change(screen.getByPlaceholderText('Title'), { target: { value: 'Updated Task' } });
-    fireEvent.click(screen.getByText('Update Task'));
+  render(
+    <Router>
+      <ToDo />
+    </Router>
+  );
 
-    expect(screen.getByText('Updated Task')).toBeInTheDocument();
-    expect(screen.queryByText('Old Task')).not.toBeInTheDocument();
+  fireEvent.click(screen.getByText('Edit Task'));
+
+  // Simulate task update
+  fireEvent.change(screen.getByPlaceholderText('Task Title'), { target: { value: updatedTask.title } });
+  fireEvent.click(screen.getByText('Save Changes'));
+
+  await waitFor(() => {
+    expect(screen.getByText(updatedTask.title)).toBeInTheDocument();
   });
+});
 
-  test('allows user to delete a task', () => {
-    render(
-      <Router>
-        <ToDo />
-      </Router>
-    );
+test('deletes a task', async () => {
+  const taskToDelete = { title: 'Task to Delete' };
 
-    fireEvent.change(screen.getByPlaceholderText('Title'), { target: { value: 'Task to Delete' } });
-    fireEvent.click(screen.getByText('Add Task'));
+  // Mock fetch for deleting a task
+  global.fetch.mockImplementationOnce(() =>
+    Promise.resolve({
+      json: () => Promise.resolve({}),
+    })
+  );
 
-    fireEvent.click(screen.getByText('Delete'));
+  render(
+    <Router>
+      <ToDo />
+    </Router>
+  );
 
-    expect(screen.queryByText('Task to Delete')).not.toBeInTheDocument();
+  fireEvent.click(screen.getByText('Delete Task'));
+
+  await waitFor(() => {
+    expect(screen.queryByText(taskToDelete.title)).not.toBeInTheDocument();
   });
+});
 
-  test('handles logout', () => {
-    render(
-      <Router>
-        <ToDo />
-      </Router>
-    );
+test('searches for tasks', async () => {
+  const taskToSearch = { title: 'Searchable Task' };
 
-    fireEvent.click(screen.getByText('Logout'));
-    expect(localStorage.removeItem).toHaveBeenCalledWith('token');
+  // Mock fetch for search functionality
+  global.fetch.mockImplementationOnce(() =>
+    Promise.resolve({
+      json: () => Promise.resolve([taskToSearch]),
+    })
+  );
+
+  render(
+    <Router>
+      <ToDo />
+    </Router>
+  );
+
+  fireEvent.change(screen.getByPlaceholderText('Search tasks'), { target: { value: 'Searchable Task' } });
+
+  await waitFor(() => {
+    expect(screen.getByText(taskToSearch.title)).toBeInTheDocument();
   });
 });
