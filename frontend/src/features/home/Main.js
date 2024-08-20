@@ -1,53 +1,81 @@
-import React, { useState } from 'react';
+// eslint-disable-next-line no-unused-vars
+import React from "react";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Form from "react-bootstrap/Form";
+import { Link } from "react-router-dom";
+// import Logo from "./Forms-pana.svg";
 
+const CreateUser = () => {
+  return (
+    <Container>
+      <Row>
+        <Col>
+          <p className="h5 fw-bold">Add User</p>
+        </Col>
+        <Col className="text-end">
+          <div className="col text-end">
+            <Link to="/" className="btn btn-success">
+              <i className="fa fa-chevron-circle-left" aria-hidden="true"></i>{" "}
+              Back
+            </Link>
+          </div>
+        </Col>
+      </Row>
 
-const TaskForm = ({ onAddTask }) => {
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [dueDate, setDueDate] = useState('');
-    const [priority, setPriority] = useState('Medium');
+      <hr />
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (title.trim()) {
-            onAddTask({ title, description, dueDate, priority });
-            setTitle('');
-            setDescription('');
-            setDueDate('');
-            setPriority('Medium');
-        }
-    };
+      <Row>
+        <Col>
+          <Form>
+            <Row className="mb-3">
+              <Form.Group
+                as={Col}
+                xs={12}
+                md={6}
+                className="mb-3"
+                controlId="formGridTitle"
+              >
+                <Form.Label>Title</Form.Label>
+                <Form.Control type="text" placeholder="Enter title" />
+              </Form.Group>
 
-    return (
-        <form onSubmit={handleSubmit}>
-            <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Task Title"
-                required
-            />
-            <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Task Description"
-            />
-            <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-            />
-            <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-            >
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
-            </select>
-            <button type="submit">Add Task</button>
-        </form>
-    );
+              <Form.Group as={Col} xs={12} md={6} controlId="formGridDueDate">
+                <Form.Label>Due Date</Form.Label>
+                <Form.Control type="date" />
+              </Form.Group>
+            </Row>
+
+            <Row className="mb-3">
+              <Form.Group as={Col} controlId="formGridPriority" className="mb-3">
+                <Form.Label>Priority (optional)</Form.Label>
+                <Form.Select>
+                  <option value="">Select Priority</option>
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </Form.Select>
+              </Form.Group>
+
+              <Form.Group as={Col} xs={12} controlId="formGridDescription">
+                <Form.Label>Description</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={5}
+                  placeholder="Enter description"
+                />
+              </Form.Group>
+            </Row>
+          </Form>
+        </Col>
+
+        <Col className="text-center p-3 d-none d-md-block">
+          <img src={Logo} alt="" className="img-fluid rounded" width="500px" />
+        </Col>
+      </Row>
+    </Container>
+  );
 };
 
-export default TaskForm;
+export default CreateUser;
