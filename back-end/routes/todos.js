@@ -120,21 +120,23 @@ router.patch('/todos/:id/toggle', authenticate ,async (req, res) => {
 router.get('/todos/search', authenticate, async (req, res) => {
   const { q } = req.query;
 
-  if (!q) {
-    return res.status(400).json({ error: 'Query parameter `q` is required' });
-  }
-
   try {
-    const todos = await prisma.todo.findMany({
-      where: {
-        userId: req.user.userId,
-        title: {
-          contains: q,
+    let todos;
 
+    if (!q || q.trim() === '') {
+      todos = await prisma.todo.findMany({
+        where: { userId: req.user.userId },
+      });
+    } else {
+      todos = await prisma.todo.findMany({
+        where: {
+          userId: req.user.userId,
+          title: {
+            contains: q,
+          },
         },
-      },
-    });
-    
+      });
+    }
 
     res.json(todos);
   } catch (error) {
@@ -142,5 +144,6 @@ router.get('/todos/search', authenticate, async (req, res) => {
     res.status(500).json({ error: 'Failed to search tasks' });
   }
 });
+
 
 module.exports = router;

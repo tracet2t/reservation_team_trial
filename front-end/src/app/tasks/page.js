@@ -78,7 +78,7 @@ const TasksPage = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('a');
+  const [searchQuery, setSearchQuery] = useState('');
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',

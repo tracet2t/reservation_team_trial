@@ -14,37 +14,37 @@ describe('formatDate', () => {
     });
   });
 
-  describe('isDueDatePassed', () => {
+describe('isDueDatePassed', () => {
     it('should return true if the due date has passed', () => {
-      const pastDate = new Date();
-      pastDate.setDate(pastDate.getDate() - 1); // Yesterday
-      expect(isDueDatePassed(pastDate.toISOString())).toBe(true);
+        const pastDate = new Date();
+        pastDate.setDate(pastDate.getDate() - 1);       // Yesterday
+        expect(isDueDatePassed(pastDate.toISOString())).toBe(true);
     });
 
     it('should return false if the due date is in the future', () => {
-      const futureDate = new Date();
-      futureDate.setDate(futureDate.getDate() + 1); // Tomorrow
-      expect(isDueDatePassed(futureDate.toISOString())).toBe(false);
+        const futureDate = new Date();
+        futureDate.setDate(futureDate.getDate() + 1);   // Tomorrow
+        expect(isDueDatePassed(futureDate.toISOString())).toBe(false);
     });
 
     it('should return false if the due date is today', () => {
-      const today = new Date().toISOString();
-      expect(isDueDatePassed(today)).toBe(false);
+        const today = new Date().toISOString();
+        expect(isDueDatePassed(today)).toBe(false);
     });
-  });
+});
 
-  describe('calculateRemainingTime', () => {
+describe('calculateRemainingTime', () => {
     it('should return "Due Date Passed" if the due date is in the past', () => {
-      const pastDate = new Date();
-      pastDate.setDate(pastDate.getDate() - 1); // Yesterday
-      expect(calculateRemainingTime(pastDate.toISOString())).toBe('Due Date Passed');
+        const pastDate = new Date();
+        pastDate.setDate(pastDate.getDate() - 1);       // Yesterday
+        expect(calculateRemainingTime(pastDate.toISOString())).toBe('Due Date Passed');
     });
 
     it('should calculate the correct remaining time', () => {
-      const futureDate = new Date();
-      futureDate.setDate(futureDate.getDate() + 1); // Tomorrow
-      futureDate.setHours(futureDate.getHours() + 5); // 5 hours into tomorrow
-      const expectedOutput = '1 days 5 hours remaining';
-      expect(calculateRemainingTime(futureDate.toISOString())).toBe(expectedOutput);
+        const futureDate = new Date();
+        futureDate.setDate(futureDate.getDate() + 1);   // Tomorrow
+        futureDate.setHours(futureDate.getHours() + 5); // 5 hours into tomorrow
+        const expectedOutput = '1 days 5 hours remaining';
+        expect(calculateRemainingTime(futureDate.toISOString())).toBe(expectedOutput);
     });
-  });
+});

@@ -12,8 +12,9 @@ const Navbar = () => {
 
   useEffect(() => {
     const checkAuthStatus = () => {
-      const token = document.cookie.split('; ').find(row => row.startsWith('token='));
-      setIsLoggedIn(!!token); 
+      const authStatus = document.cookie.split('; ').find(row => row.startsWith('authStatus='));
+      const isAuth = authStatus && authStatus.split('=')[1] === 'true';
+      setIsLoggedIn(isAuth);
     };
 
     checkAuthStatus();
@@ -21,6 +22,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
+    document.cookie = 'authStatus=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
     setIsLoggedIn(false); 
     router.push('/');
   };
