@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -15,7 +15,9 @@ const isDueDatePassed = (dueDate) => {
   return today > due;
 };
 
-const calculateRemainingTime = (dueDate) => {
+const calculateRemainingTime = (dueDate, isCompleted) => {
+  if (isCompleted) return '';
+
   const now = new Date();
   const due = new Date(dueDate);
   const timeDiff = due - now;
@@ -106,7 +108,7 @@ const TasksPage = () => {
         setTasks(data);
 
         data.forEach(task => {
-          if (isDueDatePassed(task.dueDate)) {
+          if (!task.completed && isDueDatePassed(task.dueDate)) {
             notifyUser(task.title);
           }
         });
@@ -208,7 +210,7 @@ const TasksPage = () => {
 
         <ul className="mt-8">
           {tasks.map((task) => {
-            const text = calculateRemainingTime(task.dueDate);
+            const text = calculateRemainingTime(task.dueDate, task.completed);
             return (
               <li key={task.id} className="flex justify-between items-center mb-4">
                 <div
@@ -217,8 +219,8 @@ const TasksPage = () => {
                 >
                   {task.title}
                 </div>
-                <div className={`text-sm p-2 rounded-full ${isDueDatePassed(task.dueDate) ? 'bg-red-200 text-red-600' : 'bg-green-200 text-green-600'}`}>
-                  {isDueDatePassed(task.dueDate) ? 'Due Date Passed' : text}
+                <div className={`text-sm p-2 rounded-full ${task.completed ? 'bg-gray-200 text-gray-500' : (isDueDatePassed(task.dueDate) ? 'bg-red-200 text-red-600' : 'bg-green-200 text-green-600')}`}>
+                  {task.completed ? '' : text}
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button onClick={() => openEditModal(task)}>Edit</Button>
@@ -266,20 +268,16 @@ const TasksPage = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-left">Priority</label>
-                <select
+                <input
+                  type="text"
                   value={selectedTask.priority}
                   onChange={(e) => setSelectedTask({ ...selectedTask, priority: e.target.value })}
                   className="border rounded p-2 w-full"
-                >
-                  <option value="">Select Priority</option>
-                  <option value="Low">Low</option>
-                  <option value="Medium">Medium</option>
-                  <option value="High">High</option>
-                </select>
+                />
               </div>
-              <div className="flex justify-end space-x-2">
-                <Button onClick={closeEditModal} className="bg-gray-500 text-white">Close</Button>
-                <Button onClick={handleUpdateTask} className="bg-blue-500 text-white">Save</Button>
+              <div className="flex justify-end">
+                <Button onClick={handleUpdateTask} className="bg-blue-500 text-white">Update</Button>
+                <Button onClick={closeEditModal} className="ml-4">Cancel</Button>
               </div>
             </div>
           </div>
@@ -319,25 +317,20 @@ const TasksPage = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-left">Priority</label>
-                <select
+                <input
+                  type="text"
                   value={newTask.priority}
                   onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
                   className="border rounded p-2 w-full"
-                >
-                  <option value="">Select Priority</option>
-                  <option value="Low">Low</option>
-                  <option value="Medium">Medium</option>
-                  <option value="High">High</option>
-                </select>
+                />
               </div>
-              <div className="flex justify-end space-x-2">
-                <Button onClick={() => setIsAddModalOpen(false)} className="bg-gray-500 text-white">Close</Button>
-                <Button onClick={handleAddTask} className="bg-blue-500 text-white">Add</Button>
+              <div className="flex justify-end">
+                <Button onClick={handleAddTask} className="bg-blue-500 text-white">Add Task</Button>
+                <Button onClick={() => setIsAddModalOpen(false)} className="ml-4">Cancel</Button>
               </div>
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
