@@ -167,4 +167,33 @@ test('is it fail to log the user with incorrect credentials', async () => {   //
         message: 'Invalid credentials'
       });
   });
+
+  test('should return tasks that match the search query by title', async () => {  // test to search tasks
+    await request(server)
+        .post('/addTask')
+        .send({ title: 'Test Search Title', description: 'Description for search by title', dueDate: '2024-08-22', priority: 'Low' });
+
+    const response = await request(server)
+        .get('/searchTasks')
+        .query({ query: 'Test Search Title' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.tasks).toHaveLength(1);
+    expect(response.body.tasks[0].title).toBe('Test Search Title');
+});
+
+test('should return tasks that match the search query by description', async () => {
+    await request(server)
+        .post('/addTask')
+        .send({ title: 'Another Task', description: 'Search this description', dueDate: '2024-08-23', priority: 'Medium' });
+
+    const response = await request(server)
+        .get('/searchTasks')
+        .query({ query: 'Search this description' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.tasks).toHaveLength(1);
+    expect(response.body.tasks[0].description).toBe('Search this description');
+});
+
   

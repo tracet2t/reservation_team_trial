@@ -69,12 +69,23 @@ document.addEventListener('DOMContentLoaded',()=>{
     function fetchTasks() {     // function for viewing tasks
       fetch('/tasks')
           .then(response => response.json())
-          .then(data => renderTasks(data.tasks))
+          .then(data => {
+            renderTasks(data.tasks);
+            if (data.upcomingTasks && data.upcomingTasks.length > 0) {
+                notifyUpcomingTasks(data.upcomingTasks);
+            }
+            })
           .catch(error => console.error('Error fetching tasks:', error));
     }
   
     fetchTasks();
 
+    function notifyUpcomingTasks(upcomingTasks) {  // function for task notification
+      upcomingTasks.forEach(task => {
+          confirmMessage(`Reminder: Task "${task.title}" is due soon!`, 'warning');
+      });
+    }
+  
     function deleteTask(id) {        // function for deleting tasks
       fetch('/deleteTask', {
           method: 'POST',
@@ -154,6 +165,9 @@ document.addEventListener('DOMContentLoaded',()=>{
         case 'error':
           message.className = 'fixed top-0 right-0 m-4 p-2 bg-red-500 text-white rounded shadow-lg';
           break;
+        case 'warning':
+          message.className = 'fixed top-0 right-0 m-4 p-2 bg-yellow-500 text-white rounded shadow-lg';
+          break;
         default:
           message.className = 'fixed top-0 right-0 m-4 p-2 bg-blue-500 text-white rounded shadow-lg';
           break;
@@ -186,7 +200,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       }
     });
 
-    function searchTasks(query){
+    function searchTasks(query){  // function to search tasks
       fetch(`/searchTasks?query=${encodeURIComponent(query)}`)
         .then(response => response.json())
         .then(data => renderTasks(data.tasks))

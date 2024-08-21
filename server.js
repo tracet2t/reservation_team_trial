@@ -73,8 +73,18 @@ function fetchTasks(res) {
             console.error('Error fetching tasks:', error.message);
             return res.status(500).send(error.message);
         }
+
+        const now = new Date();
+        const upcomingTasks = rows.filter(task => {
+            const dueDate = new Date(task.due_date);
+            const timeDiff = dueDate - now;
+            const hoursDiff = timeDiff / (1000 * 60 * 60);
+            return hoursDiff <= 24 && hoursDiff > 0;
+        })
+
+
         console.log('Fetched tasks:', rows); // Log the tasks retrieved
-        res.json({ tasks: rows });
+        res.json({ tasks: rows, upcomingTasks });
     });
 }
 
@@ -157,7 +167,7 @@ app.get('/app.html', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'app.html'));
 });
 
-app.get('/searchTasks', (req,res) => {
+app.get('/searchTasks', (req,res) => {   // api for task search
     const query = `%${req.query.query}%`;
     db.all('SELECT * FROM tasks WHERE title LIKE ? OR description LIKE ?', [query, query], (error, rows) => {
         if (error) {
