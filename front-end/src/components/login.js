@@ -6,6 +6,10 @@ import axios from 'axios';
 import Link from 'next/link';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useDispatch } from 'react-redux';
+import { login } from '@/store/authSlice';
+
+
 
 const MessageModal = ({ message, onClose }) => {
   return (
@@ -36,6 +40,8 @@ const LoginPage = () => {
   const [success, setSuccess] = useState('');
   const [showMessage, setShowMessage] = useState(false);
   const router = useRouter();
+  const dispatch = useDispatch();
+
 
 
   const handleSubmit = async (e) => {
@@ -50,6 +56,9 @@ const LoginPage = () => {
       document.cookie = `token=${token}; path=/; max-age=3600`; 
       setSuccess('Login successful! Redirecting to tasks...');
       setShowMessage(true);
+      dispatch(login()); 
+
+
 
       setTimeout(() => {
         router.push('/tasks');

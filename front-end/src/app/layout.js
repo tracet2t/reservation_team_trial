@@ -1,15 +1,18 @@
-import { Inter } from "next/font/google";
-import Nav from "../components/nav";
-import '@/styles/globals.css'; 
+"use client";
 
-const inter = Inter({ subsets: ["latin"] });
+import { Provider } from 'react-redux';
+import { store } from '../store/store';
+import Navbar from '@/components/nav';
+import '../styles/globals.css';
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-      <Nav></Nav>
-      {children}
+        <Provider store={store}>
+          <Navbar></Navbar>
+          {children}
+        </Provider>
       </body>
     </html>
   );

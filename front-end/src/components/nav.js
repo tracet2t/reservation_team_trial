@@ -1,29 +1,26 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useSelector, useDispatch } from 'react-redux';
+import { setAuth, logout } from '@/store/authSlice';
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const dispatch = useDispatch();
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
 
   useEffect(() => {
-    const checkAuthStatus = () => {
-      const authStatus = document.cookie.split('; ').find(row => row.startsWith('authStatus='));
-      const isAuth = authStatus && authStatus.split('=')[1] === 'true';
-      setIsLoggedIn(isAuth);
-    };
-
-    checkAuthStatus();
-  }, [router]);
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='));
+    dispatch(setAuth(!!token)); 
+  }, [dispatch]);
 
   const handleLogout = () => {
     document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
-    document.cookie = 'authStatus=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
-    setIsLoggedIn(false); 
+    dispatch(logout());
     router.push('/');
   };
 
