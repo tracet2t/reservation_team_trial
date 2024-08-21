@@ -1,15 +1,22 @@
-version: '3.8' 
+version: '3.8'
+
 services:
-  sqlite:
-    container_name: sqlite
-    image: nouchka/sqlite3:latest
-    stdin_open: true
-    restart: always
-    tty: true
-    volumes:
-      - ./db/:/root/db/
+  backend:
+    build: ./back-end
     ports:
-      - 3306:3306
-volumes:
-  postgres:
-    driver: local
+      - "5000:5000"
+    volumes:
+      - ./back-end:/app
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+
+  frontend:
+    build: ./front-end
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./front-end:/app
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
