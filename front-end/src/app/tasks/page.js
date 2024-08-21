@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from 'framer-motion';
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -209,29 +210,38 @@ const TasksPage = () => {
         </header>
 
         <ul className="mt-8">
-          {tasks.map((task) => {
-            const text = calculateRemainingTime(task.dueDate, task.completed);
-            return (
-              <li key={task.id} className="flex justify-between items-center mb-4">
-                <div
-                  className={`cursor-pointer ${task.completed ? 'line-through text-gray-500' : ''}`}
-                  onClick={() => openEditModal(task)}
+          <AnimatePresence>
+            {tasks.map((task) => {
+              const text = calculateRemainingTime(task.dueDate, task.completed);
+              return (
+                <motion.li
+                  key={task.id}
+                  className="flex justify-between items-center mb-4"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  layout
                 >
-                  {task.title}
-                </div>
-                <div className={`text-sm p-2 rounded-full ${task.completed ? 'bg-gray-200 text-gray-500' : (isDueDatePassed(task.dueDate) ? 'bg-red-200 text-red-600' : 'bg-green-200 text-green-600')}`}>
-                  {task.completed ? '' : text}
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Button onClick={() => openEditModal(task)}>Edit</Button>
-                  <Button onClick={() => handleToggleTask(task.id)} className={`${task.completed ? 'bg-green-500' : 'bg-yellow-500'} text-white`}>
-                    {task.completed ? 'Completed' : 'Not Completed'}
-                  </Button>
-                  <Button onClick={() => handleDeleteTask(task.id)} className="bg-red-500 text-white">Delete</Button>
-                </div>
-              </li>
-            );
-          })}
+                  <div
+                    className={`cursor-pointer ${task.completed ? 'line-through text-gray-500' : ''}`}
+                    onClick={() => openEditModal(task)}
+                  >
+                    {task.title}
+                  </div>
+                  <div className={`text-sm p-2 rounded-full ${task.completed ? 'bg-gray-200 text-gray-500' : (isDueDatePassed(task.dueDate) ? 'bg-red-200 text-red-600' : 'bg-green-200 text-green-600')}`}>
+                    {task.completed ? '' : text}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button onClick={() => openEditModal(task)}>Edit</Button>
+                    <Button onClick={() => handleToggleTask(task.id)} className={`${task.completed ? 'bg-green-500' : 'bg-yellow-500'} text-white`}>
+                      {task.completed ? 'Completed' : 'Not Completed'}
+                    </Button>
+                    <Button onClick={() => handleDeleteTask(task.id)} className="bg-red-500 text-white">Delete</Button>
+                  </div>
+                </motion.li>
+              );
+            })}
+          </AnimatePresence>
         </ul>
 
         {/* Edit Modal */}
@@ -250,18 +260,17 @@ const TasksPage = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-left">Description</label>
-                <input
-                  type="text"
+                <textarea
                   value={selectedTask.description}
                   onChange={(e) => setSelectedTask({ ...selectedTask, description: e.target.value })}
                   className="border rounded p-2 w-full"
-                />
+                ></textarea>
               </div>
               <div className="mb-4">
                 <label className="block text-left">Due Date</label>
                 <input
                   type="date"
-                  value={formatDate(selectedTask.dueDate)}
+                  value={selectedTask.dueDate}
                   onChange={(e) => setSelectedTask({ ...selectedTask, dueDate: e.target.value })}
                   className="border rounded p-2 w-full"
                 />
@@ -275,15 +284,15 @@ const TasksPage = () => {
                   className="border rounded p-2 w-full"
                 />
               </div>
-              <div className="flex justify-end">
-                <Button onClick={handleUpdateTask} className="bg-blue-500 text-white">Update</Button>
-                <Button onClick={closeEditModal} className="ml-4">Cancel</Button>
+              <div className="flex justify-between">
+                <Button onClick={handleUpdateTask} className="text-white">Save</Button>
+                <Button onClick={closeEditModal} className="bg-red-500 text-white">Cancel</Button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Add Task Modal */}
+        {/* Add Modal */}
         {isAddModalOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-8 rounded-lg shadow-lg">
@@ -299,12 +308,11 @@ const TasksPage = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-left">Description</label>
-                <input
-                  type="text"
+                <textarea
                   value={newTask.description}
                   onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
                   className="border rounded p-2 w-full"
-                />
+                ></textarea>
               </div>
               <div className="mb-4">
                 <label className="block text-left">Due Date</label>
@@ -324,9 +332,9 @@ const TasksPage = () => {
                   className="border rounded p-2 w-full"
                 />
               </div>
-              <div className="flex justify-end">
-                <Button onClick={handleAddTask} className="bg-blue-500 text-white">Add Task</Button>
-                <Button onClick={() => setIsAddModalOpen(false)} className="ml-4">Cancel</Button>
+              <div className="flex justify-between">
+                <Button onClick={handleAddTask} className="text-white">Add</Button>
+                <Button onClick={() => setIsAddModalOpen(false)} className="bg-red-500 text-white">Cancel</Button>
               </div>
             </div>
           </div>

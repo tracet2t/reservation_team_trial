@@ -25,7 +25,8 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-gray-800 p-4">
+    <div className='bg-gray-100'>
+    <nav className="bg-gray-800 p-4 rounded-3xl ml-4 mr-4 ">
       <div className="container mx-auto flex items-center justify-between">
         <Link href="/" passHref>
           <span className="text-white text-lg font-bold">
@@ -70,6 +71,7 @@ const Navbar = () => {
         </NavigationMenu>
       </div>
     </nav>
+    </div>
   );
 };
 
