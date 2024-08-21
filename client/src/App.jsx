@@ -1,6 +1,6 @@
 import './App.css'
 import "bootstrap/dist/css/bootstrap.min.css";
-import Home from "./features/home/Home";
+import Home from "./features/home/Home.jsx";
 import { Route, Routes } from "react-router-dom";
 import CreateUser from './features/create_todo/CreateTodo';
 
