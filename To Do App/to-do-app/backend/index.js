@@ -3,11 +3,35 @@ const { PrismaClient } = require('@prisma/client');
 
 const app = express();
 const prisma = new PrismaClient();
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 app.use(express.json());
 // Root Route
 app.get('/', (req, res) => {
   res.send('Welcome to the To-Do API');
+});
+
+// User Registration
+app.post('/register', async (req, res) => {
+  const { email, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const user = await prisma.user.create({
+    data: { email, password: hashedPassword },
+  });
+  res.json(user);
+});
+
+// User Login
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (user && await bcrypt.compare(password, user.password)) {
+    const token = jwt.sign({ userId: user.id }, 'your-secret-key', { expiresIn: '1h' });
+    res.json({ token });
+  } else {
+    res.status(401).json({ error: 'Invalid credentials' });
+  }
 });
 
 // Get All Tasks
@@ -54,7 +78,8 @@ app.delete('/tasks/:id', async (req, res) => {
   res.json(deletedTask);
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
