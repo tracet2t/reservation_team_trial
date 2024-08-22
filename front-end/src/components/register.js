@@ -40,7 +40,7 @@ const getToken = () => {
 
 const RegisterPage = () => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState('awdsas');
   const [isAdmin, setIsAdmin] = useState(false);
   const [name, setName] = useState('');
   const [error, setError] = useState('');
@@ -97,15 +97,6 @@ const RegisterPage = () => {
               placeholder="Email" 
               value={email} 
               onChange={(e) => setEmail(e.target.value)} 
-              required 
-            />
-          </div>
-          <div className="mb-4">
-            <Input 
-              type="password" 
-              placeholder="Password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
               required 
             />
           </div>

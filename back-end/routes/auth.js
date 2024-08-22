@@ -9,12 +9,25 @@ const jwt = require('jsonwebtoken');
 const { registerSchema, loginSchema } = require('../validators/taskValidator.js');
 const validate = require('../middlewares/validate.js');
 const {authenticate, authenticateAdmin} = require('../middlewares/authenticate.js');
+const nodemailer = require('nodemailer');
+
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const saltRounds = 10;
 const secret = process.env.JWT_SECRET
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com', 
+  port: 587,
+  secure: false, 
+  auth: {
+    user: 'thlurte@gmail.com', 
+    pass: '*********', 
+  },
+});
+
 
 
 router.post('/login', validate(loginSchema), async (req, res) => {
@@ -48,16 +61,41 @@ router.post('/register', authenticateAdmin, validate(registerSchema), async (req
       return res.status(400).json({ error: 'User already exists' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    
+      const randomPassword = Math.random().toString(36).slice(-8); 
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name,
-        isAdmin
-      },
-    });
+      const hashedPassword = await bcrypt.hash(randomPassword, saltRounds);
+
+      const user = await prisma.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          name,
+          isAdmin
+        },
+      });
+
+      await transporter.sendMail({
+        from: 'thlurte@gmail.com', // Sender address
+        to: email, // List of recipients
+        subject: 'Your Account Details', // Subject line
+        html: `
+          <p>Hello ${name},</p>
+          <p>Your account has been created with the following details:</p>
+          <p>Email: ${email}</p>
+          <p>Password: ${randomPassword}</p>
+          <p>Thank you!</p>
+        `,
+      });
+
+    
+
+    // const hashedPassword = await bcrypt.hash(password, saltRounds);
+    // 
+
+
+
+
 
 
 
