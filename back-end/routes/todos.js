@@ -8,7 +8,7 @@ const router = express.Router();
 const { taskSchema } = require('../validators/taskValidator.js');
 const validate = require('../middlewares/validate.js');
 
-const authenticate = require('../middlewares/authenticate.js');
+const {authenticate, authenticateAdmin} = require('../middlewares/authenticate.js');
 const TaskManager = require('../modules/taskmanager')
 
 // prisma for simplified interaction with db

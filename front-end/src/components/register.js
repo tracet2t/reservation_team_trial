@@ -26,15 +26,28 @@ const MessageModal = ({ message, onClose }) => {
   );
 };
 
+const getToken = () => {
+  if (typeof window !== 'undefined') {
+    return document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1];
+  }
+  return null;
+};
+
+
+
+
+
+
 const RegisterPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showMessage, setShowMessage] = useState(false);
   const router = useRouter();
-  const dispatch = useDispatch();
+
 
 
 
@@ -44,19 +57,12 @@ const RegisterPage = () => {
     setSuccess('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/v1/auth/register', { email, password, name });
-      const { token } = response.data;
-
-      // Save token to cookies
-      document.cookie = `token=${token}; path=/; max-age=3600`; 
-
-      setSuccess('Registration successful! Redirecting to tasks...');
-      setShowMessage(true);
-      dispatch(login()); 
-
-      setTimeout(() => {
-        router.push('/tasks');
-      }, 1500);
+      const rev = getToken();
+      const response = await axios.post('http://localhost:5150/api/v1/auth/register', { email:email, password:password, name:name, isAdmin:isAdmin }, {
+        headers: {
+          Authorization: `Bearer ${rev}`,
+        }});
+      // dispatch(login()); 
     } catch (error) {
       setError('Failed to register. Please try again.');
       setShowMessage(true);
@@ -103,6 +109,16 @@ const RegisterPage = () => {
               required 
             />
           </div>
+          <div className="mb-4">
+      <label>
+        <input
+          type="checkbox"
+          checked={isAdmin}
+          onChange={(e) => setIsAdmin(e.target.checked)}
+        />
+        Is Admin
+      </label>
+    </div>
           <Button type="submit" className="w-full">Register</Button>
         </form>
 

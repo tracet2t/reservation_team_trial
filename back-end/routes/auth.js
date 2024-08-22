@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 
 const { registerSchema, loginSchema } = require('../validators/taskValidator.js');
 const validate = require('../middlewares/validate.js');
+const {authenticate, authenticateAdmin} = require('../middlewares/authenticate.js');
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
@@ -26,15 +27,16 @@ router.post('/login', validate(loginSchema), async (req, res) => {
     }
 
     const token = jwt.sign({ userId: user.id }, secret, { expiresIn: '1h' });
+    const isAdmin = user.isAdmin;
 
-    res.json({ token });
+    res.json({ token,  isAdmin});
   } catch (error) {
     res.status(400).json({ error: 'Failed to login' });
   }
 });
 
-router.post('/register', validate(registerSchema), async (req, res) => {
-  const { email, password, name } = req.body;
+router.post('/register', authenticateAdmin, validate(registerSchema), async (req, res) => {
+  const { email, password, name, isAdmin } = req.body;
 
   try {
     const existingUser = await prisma.user.findUnique({
@@ -53,6 +55,7 @@ router.post('/register', validate(registerSchema), async (req, res) => {
         email,
         password: hashedPassword,
         name,
+        isAdmin
       },
     });
 

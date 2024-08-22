@@ -7,7 +7,7 @@ const authRoutes = require('./routes/auth');
 
 const cors = require('cors');
 
-const PORT = 5000;
+const PORT = 5150;
 
 app.use(cors({
   origin: 'http://localhost:3000', 

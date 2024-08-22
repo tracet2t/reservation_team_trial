@@ -50,10 +50,14 @@ const LoginPage = () => {
     setSuccess('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/v1/auth/login', { email, password });
-      const { token } = response.data;
+      const response = await axios.post('http://localhost:5150/api/v1/auth/login', { email, password });
+
+      const { token,isAdmin } = response.data;
+      console.log(token,isAdmin);
 
       document.cookie = `token=${token}; path=/; max-age=3600`; 
+      document.cookie = `isAdmin=${isAdmin}; path=/; max-age=3600`; 
+
       setSuccess('Login successful! Redirecting to tasks...');
       setShowMessage(true);
       dispatch(login()); 
@@ -103,9 +107,6 @@ const LoginPage = () => {
           <Button type="submit" className="w-full">Login</Button>
         </form>
 
-        <p className="mt-4 text-center">
-          Don't have an account? <Link href="/register" className="text-blue-500">Sign Up</Link>
-        </p>
       </div>
 
       {showMessage && (
