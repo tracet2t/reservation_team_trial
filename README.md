@@ -14,6 +14,9 @@ Add a script in your package.json to run Jest:
 # 3. Write Tests for ToDo Component
 npm install --save-dev @testing-library/react @testing-library/jest-dom
 
+# Technologies
+Use Node.js, Express, and SQLite3 for the backend, and React.js for the frontend.
+
 # sample Test
 // sum.js
 function sum(a, b) {
